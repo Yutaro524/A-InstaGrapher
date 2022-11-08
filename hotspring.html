@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <script src="./d3.js" charset="utf-8"></script>
+        <script src="./topojson.js" charset="utf-8"></script>
+    </head>
+<body>
+    <div>
+        <input type="button" value="reset" id="btn1" style="position: absolute; left: 150px; top: 50px"/>
+    <div>
+<script type="text/javascript">
+
+var width = 800;
+var height = 800;
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.append("text")
+
+
+
+d3.json("./jp_city.l.topojson").then(function(data){
+    var city = topojson.feature(data, data.objects.city);
+    var projection = d3.geoMercator()
+        .center([137, 34])
+        .translate([width/2, height/2])
+        .scale(1500);
+    var path = d3.geoPath().projection(projection);
+
+    svg.selectAll("path")
+        .data(city.features)
+        .enter()
+        .append("path")
+        .attr("d", path)
+        .attr("fill", "rgb(255, 255, 255)")
+        .attr("stroke", "#333333")
+        .attr("stroke-width", 0.5)
+
+        .on("click", zoom)
+
+        .on("mouseover", prename)
+        .on("mouseout", remove)
+
+        .attr('data-position', function(d) {
+            var p = d3.geoCentroid(d);
+            return p[0] + "," + p[1];
+        })
+    
+    var zoom = 2;
+
+    function zoom(event, d){
+        var p = projection(this.getAttribute('data-position').split(','));
+        zoom = 2 * zoom; // ズーム
+        svg.selectAll("path").attr("transform", "translate(" + width/2 + "," + height/2 + ")scale(" + zoom + ")translate(" + - p[0] + "," + - p[1] + ")");
+                    
+    }
+
+    var target = d3.selectAll("#btn1")
+        .on("click", reset);
+    
+    function reset(event, d){
+        svg.selectAll("path").attr("transform", "scale(1)");
+        zoom = 1;
+    }
+
+    function prename(event, d){
+        var x = projection(d3.geoCentroid(d));
+        svg.append("text")
+            .attr("class", "nametext")
+            .attr("text-anchor", "left")
+            // .attr("x", p[0])
+            // .attr("y", p[1])
+            .attr("transform", "translate(" + x + ")")
+            .text(d.id);
+    }
+    function remove(event) {
+        svg.selectAll(".nametext")
+            .remove();
+    }
+})
+</script>
+</body></html>
