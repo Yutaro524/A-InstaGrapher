@@ -106,7 +106,7 @@ def get_latlong(url):
             pass
     time.sleep(1)
     if len(lat_list) == 0:
-        return [0, 0]
+        return 0, 0
     else:
         return lat_list[0], long_list[0]
 
