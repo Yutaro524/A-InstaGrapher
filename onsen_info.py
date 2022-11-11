@@ -18,7 +18,11 @@ def get_items(url, df, columns):
         name = item.select("td.sn > a")[0].text
         onsen_url = item.select("td.sn")[0].find("a").get("href")
         latitude, longitude = get_latlong(onsen_url)
-        city, lv01Nm = reverse_geocoding(latitude, longitude)
+        print(latitude, longitude)
+        if (latitude != 0):
+            city, lv01Nm = reverse_geocoding(latitude, longitude)
+        else:
+            city, lv01Nm = "不明", "不明"
         try:
             links = item.select("td.hp")[0]
             link = links.find("a").get("href")
@@ -82,7 +86,8 @@ def get_latlong(url):
     soup = BeautifulSoup(res_text, 'html.parser')
     ret = soup.find_all("tr")
     ret.pop(0)
-    ret.pop(-1)
+    if len(ret) != 0:
+        ret.pop(-1)
     lat_list = []
     long_list = []
     for item in ret:
@@ -103,7 +108,7 @@ def get_latlong(url):
     if len(lat_list) == 0:
         return [0, 0]
     else:
-        return np.mean(lat_list), np.mean(long_list)
+        return lat_list[0], long_list[0]
 
 def reverse_geocoding(latitude, longitude):
     endpoint_url = 'https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress'
