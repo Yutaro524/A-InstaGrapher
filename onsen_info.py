@@ -17,7 +17,7 @@ def get_items(url, df, columns):
         prefecture = item.select("td.kn > a")[0].text
         name = item.select("td.sn > a")[0].text
         onsen_url = item.select("td.sn")[0].find("a").get("href")
-        city, lv01Nm = get_city(onsen_url)
+        city, lv01Nm, latitude, longitude = get_city(onsen_url)
         try:
             links = item.select("td.hp")[0]
             link = links.find("a").get("href")
@@ -62,9 +62,9 @@ def get_items(url, df, columns):
             kokyu = "不明"
 
         print("{0}番目の情報:{1}をDataFrameに追加します...".format(len(df)+1, name))
-        print("温泉名:{0} 県名:{1} 市町村:{2} 丁目:{3} リンク:{4} 評価平均:{5} 口コミ:{6} 宿数:{7} 温泉数:{8} 大浴場:{9} 露天風呂:{10} サウナ:{11} 禁煙:{12} 高級:{13} 単純:{14} 塩化:{15} 炭酸:{16} 硫黄:{17} 放射能:{18} 硫酸:{19} 酸性:{20} 含鉄:{21} 二酸:{22} ヨウ素:{23}" \
-            .format(name, prefecture, city, lv01Nm, link, hyoka, comi, yado, onsen_num, dai, roten, sauna, kinen, kokyu, tanjun, enka, tansan, iou, housya, ryusan, sansei, gantetsu, nisan, youso))
-        se = pandas.Series([name, prefecture, city, lv01Nm, link, hyoka, comi, yado, onsen_num, dai, roten, sauna, kinen, kokyu, tanjun, enka, tansan, iou, housya, ryusan, sansei, gantetsu, nisan, youso], columns)
+        print("温泉名:{0} 県名:{1} 市町村:{2} 丁目:{3} リンク:{4} 評価平均:{5} 口コミ:{6} 宿数:{7} 温泉数:{8} 大浴場:{9} 露天風呂:{10} サウナ:{11} 禁煙:{12} 高級:{13} 単純:{14} 塩化:{15} 炭酸:{16} 硫黄:{17} 放射能:{18} 硫酸:{19} 酸性:{20} 含鉄:{21} 二酸:{22} ヨウ素:{23} 緯度:{24} 経度:{25}" \
+            .format(name, prefecture, city, lv01Nm, link, hyoka, comi, yado, onsen_num, dai, roten, sauna, kinen, kokyu, tanjun, enka, tansan, iou, housya, ryusan, sansei, gantetsu, nisan, youso, latitude, longitude))
+        se = pandas.Series([name, prefecture, city, lv01Nm, link, hyoka, comi, yado, onsen_num, dai, roten, sauna, kinen, kokyu, tanjun, enka, tansan, iou, housya, ryusan, sansei, gantetsu, nisan, youso, latitude, longitude], columns)
         df = df.append(se, ignore_index = True)
     return df
 
@@ -80,6 +80,8 @@ def get_city(url):
         ret.pop(-1)
     lat_list = []
     long_list = []
+    if len(lat_list) == 0:
+        latitude, longitude = "不明", "不明"
     for item in ret:
         try:
             link = item.select("td.mp")[0].find("a").get("href")
@@ -89,13 +91,13 @@ def get_city(url):
             lat_list.append(float(latitude))
             long_list.append(float(longitude))
         except:
-            pass
+            latitude, longitude = "不明", "不明"
     time.sleep(1)
     if (len(lat_list) != 0):
         city, lv01Nm = reverse_geocoding(lat_list[0], long_list[0])
     else:
         city, lv01Nm = "不明", "不明"
-    return city, lv01Nm
+    return city, lv01Nm, latitude, longitude
 
 # 国土地理院のAPIを用い、緯度経度に対応する地名を出力
 def reverse_geocoding(latitude, longitude):
@@ -127,7 +129,7 @@ def def_kounou(item):
 
 def main():
     url = "https://yadococo.net/onsen.php"
-    columns = ["name", "prefecture", "city", "lv01Nm", "link", "hyoka", "comi", "yado", "onsen_num", "dai", "roten", "sauna", "kinen", "kokyu", "tanjun", "enka", "tansan", "iou", "housya", "ryusan", "sansei", "gantetsu", "nisan", "youso"]
+    columns = ["name", "prefecture", "city", "lv01Nm", "link", "hyoka", "comi", "yado", "onsen_num", "dai", "roten", "sauna", "kinen", "kokyu", "tanjun", "enka", "tansan", "iou", "housya", "ryusan", "sansei", "gantetsu", "nisan", "youso", "latitude", "longitude"]
     df = pandas.DataFrame(columns=columns)
     results = get_items(url, df, columns)
     results.to_csv("onsen_info.csv", index= False)
