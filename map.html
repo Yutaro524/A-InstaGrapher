@@ -15,13 +15,18 @@ form {
   top: 10px;
 }
 
-path {
-  stroke: #fff;
-  fill-rule: evenodd;
+/* path {
+  stroke: black;
+  fill-rule: nonzero;
+} */
+
+.background {
+  fill: none;
+  pointer-events: all;
 }
 
 .canton-boundary {
-  fill: none;
+  fill: black;
   stroke: #fff;
   stroke-linejoin: round;
 }
@@ -64,17 +69,18 @@ text {
 			
 </style>
 <body>
-<form>
+<!-- <form>
   <label><input type="radio" name="mode" value="size"> Size</label>
   <label><input type="radio" name="mode" value="count" checked> Count</label>
-</form>
+</form> -->
 <script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="./topojson.js"></script>
 
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-<div id = "map" style = "float : left; min-width:320px;width :50%;height : 600px"> 
+<div id = "map" style = "float : left; min-width:320px;width :50%;height : 30px"> 
     <div id="subtitle"></div>
+    <input type="button" value="reset" id="btn1" style="position: absolute; left: 120px; top: 50px"/>
 </div>
 <script>
     var onsen_list = [];
@@ -119,7 +125,7 @@ text {
     var height_m = 800;
     var color_m = d3.scale.category20();
     var projection_m = d3.geo.mercator()
-                        .center([137, 34])
+                        .center([137, 36])
                         .translate([width_m/2, height_m/2])
                         .scale(1500);
 
@@ -129,14 +135,46 @@ text {
                 .attr("width", width_m)
                 .attr("height", height_m);    
 
+
     d3.json("./jp_city.l.topojson", function(data){
+
+        var zoom = d3.behavior.zoom()
+        .translate(projection_m.translate())
+        .scale(projection_m.scale())
+        .scaleExtent([height_m, 8 * height_m])
+        .on("zoom", zoomed);
+
+
+        var target = d3.selectAll("#btn1")
+            .on("click", reset);
+
+        var group_m = svg_m
+            .append("g")
+            .call(zoom);
+
         var japan = topojson.feature(data, data.objects.city);
 
-        var group_m=svg_m.selectAll("g")
-                    .data(japan.features)
-                    .enter()
-                    .append("g");
 
+        group_m.selectAll("path").data(japan.features)
+            .enter()
+            .append("path")
+            .attr("d", path_m)
+            .attr("class", "area")
+            .attr("stroke", "black")
+            .attr("fill","#9ACD32");
+
+        group_m.append("path")
+             .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
+             .attr("d", path_m)
+             .attr("class", "area")
+             .attr("stroke", "black")
+             .attr("fill","#9ACD32");
+
+        group_m.append("rect")
+            .attr("class", "background")
+            .attr("stroke", "black")
+            .attr("width", width_m)
+            .attr("height", height_m);
 
         var tip_m = d3.tip()
                 .attr('class', 'd3-tip')
@@ -167,16 +205,44 @@ text {
                     .on('click', tip_m.hide);	
 
         console.log(pin);
-                
-        var path_m = d3.geo.path().projection(projection_m);
 
-        var areas= group_m.append("path")
-        .attr("d", path_m)
-        .attr("class", "area")
-        .attr("fill","#9ACD32");
+        function zoomed() {
+            projection_m.translate(d3.event.translate).scale(d3.event.scale);
+            console.log(d3.event.translate);
+            group_m.selectAll("path")
+                .attr("d", path_m)
+                .attr("class", "area")
+                .attr("stroke", "black")
+                .attr("fill","#9ACD32");
+            pin.attr("transform", function(d) {
+                    return "translate(" + projection_m([
+                        d.location.longitude,
+                        d.location.latitude
+                    ]) + ")";
+                })
+        }
+
+        function reset(event, d){
+            projection_m.translate([width_m/2, height_m/2]).scale(1500);
+            group_m.selectAll("path")
+                .attr("d", path_m)
+                .attr("class", "area")
+                .attr("stroke", "black")
+                .attr("fill","#9ACD32");
+            pin.attr("transform", function(d) {
+                    return "translate(" + projection_m([
+                        d.location.longitude,
+                        d.location.latitude
+                    ]) + ")";
+                })
+        }
+
+                
     })
 </script>
-<script>
+</body></html>
+
+<!-- <script> 
 
     // var width = 480,
     //     height = 400,
@@ -281,10 +347,10 @@ text {
     //   };
     // }
     
-    </script>
+// </script>
+// </body></html>
 
-
-<script>
+// <script> 
 
 
 
@@ -432,7 +498,7 @@ text {
     //     .scale(800)
     //     .translate([-500,600]);
     
-    // <!--  -->
+    // 
 
 
     // var projection_m = d3.geo.mercator().scale(1100).translate([-1000,800]);
@@ -508,4 +574,4 @@ text {
                         
     // });
     
-    </script>
+     </script> -->
