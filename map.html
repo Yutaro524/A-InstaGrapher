@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: auto;
+  position: relative;
+  width: 960px;
+}
+
+form {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+path {
+  stroke: #fff;
+  fill-rule: evenodd;
+}
+
+.canton-boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+
+text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+
+.d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background: #9ACD32;
+    color: #fff;
+    border-radius: 2px;
+    opacity: 0.001%;
+}
+.d3-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: #fff;
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+    opacity: 0.001%;
+}
+
+.d3-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+    opacity: 0.001%;
+}
+			
+</style>
+<body>
+<form>
+  <label><input type="radio" name="mode" value="size"> Size</label>
+  <label><input type="radio" name="mode" value="count" checked> Count</label>
+</form>
+<script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="./topojson.js"></script>
+
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<div id = "map" style = "float : left; min-width:320px;width :50%;height : 600px"> 
+    <div id="subtitle"></div>
+</div>
+<script>
+    var onsen_list = [];
+    d3.csv("./onsen_info.csv", function(data){
+
+        data.forEach(function(d)
+        {
+            if (d.latitude != "不明"){
+            onsen_loc = {};
+            onsen_loc["name"] = d.name;
+            onsen_loc["link"] = d.link;
+            onsen_loc["location"] = {"latitude": d.latitude, "longitude": d.longitude};
+            onsen_loc["city"] = d.city;
+            onsen_loc["lv01Nm"] = d.lv01Nm;
+            onsen_loc["hyoka"] = d.hyoka;
+            onsen_loc["comi"] = d.comi;
+            onsen_loc["yado"] = d.yado;
+            onsen_loc["kounou"] = kounou(d);
+            onsen_list.push(onsen_loc);
+            }
+        });
+
+        function kounou(data){
+            kounou_list = [];
+            if (data.tanjun=="True") kounou_list.push("単純");
+            if (data.enka=="True") kounou_list.push("塩化");
+            if (data.tansan=="True") kounou_list.push("炭酸");
+            if (data.iou=="True") kounou_list.push("硫黄");
+            if (data.housya=="True") kounou_list.push("放射能");
+            if (data.ryusan=="True") kounou_list.push("硫酸");
+            if (data.sansei=="True") kounou_list.push("酸性");
+            if (data.gantetsu=="True") kounou_list.push("含鉄");
+            if (data.nisan=="True") kounou_list.push("二酸");
+            if (data.youso=="True") kounou_list.push("ヨウ素");
+            if (kounou_list.length == 0) kounou_list.push("なし");
+            return kounou_list;
+        }
+    });
+    console.log(onsen_list);
+
+    var width_m = 800;
+    var height_m = 800;
+    var color_m = d3.scale.category20();
+    var projection_m = d3.geo.mercator()
+                        .center([137, 34])
+                        .translate([width_m/2, height_m/2])
+                        .scale(1500);
+
+    var path_m = d3.geo.path().projection(projection_m);
+    
+    var svg_m = d3.select("body").append("svg")
+                .attr("width", width_m)
+                .attr("height", height_m);    
+
+    d3.json("./jp_city.l.topojson", function(data){
+        var japan = topojson.feature(data, data.objects.city);
+
+        var group_m=svg_m.selectAll("g")
+                    .data(japan.features)
+                    .enter()
+                    .append("g");
+
+
+        var tip_m = d3.tip()
+                .attr('class', 'd3-tip')
+                .offset([-5, 0])
+                .style("left", "300px")
+                .style("top", "400px")
+                .html(function(d) {
+                return ("<a href="+d.link+" target='_blank'>"+d.name +"</a>");
+            })
+        
+        svg_m.call(tip_m);
+        console.log(tip_m);
+
+        
+        var pin = svg_m.selectAll(".pin")
+                    .data(onsen_list)
+                    .enter().append("circle", ".pin")
+                    .attr("r", 5)
+                    .attr("stroke", "black")
+                    .attr("fill", function(d){ return color_m(d.kounou.shift())})
+                    .attr("transform", function(d) {
+                    return "translate(" + projection_m([
+                        d.location.longitude,
+                        d.location.latitude
+                    ]) + ")";
+                    })
+                    .on('mouseover', tip_m.show)
+                    .on('click', tip_m.hide);	
+
+        console.log(pin);
+                
+        var path_m = d3.geo.path().projection(projection_m);
+
+        var areas= group_m.append("path")
+        .attr("d", path_m)
+        .attr("class", "area")
+        .attr("fill","#9ACD32");
+    })
+</script>
+<script>
+
+    // var width = 480,
+    //     height = 400,
+    //     radius = Math.min(width, height) / 2;
+    
+    // var x = d3.scale.linear()
+    //     .range([0, 2 * Math.PI]);
+    
+    // var y = d3.scale.sqrt()
+    //     .range([0, radius]);
+    
+    // var color = d3.scale.category20c();
+    
+    // var svg = d3.select("body").append("svg")
+    //     .attr("width", width)
+    //     .attr("height", height)
+    //   .append("g")
+    //     .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
+    
+    // var partition = d3.layout.partition()
+    //     .sort(null)
+    //     .value(function(d) { return 1; });
+    
+    // var arc = d3.svg.arc()
+    //     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+    //     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+    //     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
+    //     .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+    
+    // // Keep track of the node that is currently being displayed as the root.
+    // var node;
+    
+    // d3.json("./flare.json", function(error, root) {
+    //   node = root;
+    //   var path = svg.datum(root).selectAll("path")
+    //       .data(partition.nodes)
+    //     .enter().append("path")
+    //       .attr("d", arc)
+    //       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
+    //       .on("click", click)
+    //       .each(stash);
+    
+    //   d3.selectAll("input").on("change", function change() {
+    //     var value = this.value === "count"
+    //         ? function() { return 1; }
+    //         : function(d) { return d.size; };
+    
+    //     path
+    //         .data(partition.value(value).nodes)
+    //       .transition()
+    //         .duration(1000)
+    //         .attrTween("d", arcTweenData);
+    //   });
+    
+    //   function click(d) {
+    //     node = d;
+    //     path.transition()
+    //       .duration(1000)
+    //       .attrTween("d", arcTweenZoom(d));
+    //   }
+    // });
+    
+    // d3.select(self.frameElement).style("height", height + "px");
+    
+    // // Setup for switching data: stash the old values for transition.
+    // function stash(d) {
+    //   d.x0 = d.x;
+    //   d.dx0 = d.dx;
+    // }
+    
+    // // When switching data: interpolate the arcs in data space.
+    // function arcTweenData(a, i) {
+    //   var oi = d3.interpolate({x: a.x0, dx: a.dx0}, a);
+    //   function tween(t) {
+    //     var b = oi(t);
+    //     a.x0 = b.x;
+    //     a.dx0 = b.dx;
+    //     return arc(b);
+    //   }
+    //   if (i == 0) {
+    //    // If we are on the first arc, adjust the x domain to match the root node
+    //    // at the current zoom level. (We only need to do this once.)
+    //     var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
+    //     return function(t) {
+    //       x.domain(xd(t));
+    //       return tween(t);
+    //     };
+    //   } else {
+    //     return tween;
+    //   }
+    // }
+    
+    // // When zooming: interpolate the scales.
+    // function arcTweenZoom(d) {
+    //   var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+    //       yd = d3.interpolate(y.domain(), [d.y, 1]),
+    //       yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+    //   return function(d, i) {
+    //     return i
+    //         ? function(t) { return arc(d); }
+    //         : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
+    //   };
+    // }
+    
+    </script>
+
+
+<script>
+
+
+
+    // インドの地図をプロット
+    // var places_m = [
+    //     {
+    //     name: "1 Gorkha Rifles",
+    //     nam: "https://en.wikipedia.org/wiki/1_Gorkha_Rifles",
+    //     location: {
+    //         latitude: 30.975441,
+    //         longitude: 76.990228
+    //     }
+    //     },
+    //     {
+    //     name: "3 Gorkha Rifles",
+    //     nam: "https://en.wikipedia.org/wiki/3_Gorkha_Rifles",
+    //     location: {
+    //         latitude: 25.317645,
+    //         longitude:82.973914
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "5 Gorkha Rifles",
+    //     nam: "https://en.wikipedia.org/wiki/5_Gorkha_Rifles",
+    //     location: {
+    //         latitude: 25.578773,
+    //         longitude:91.893254
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "11 Gorkha Rifles",
+    //     nam: "https://en.wikipedia.org/wiki/11_Gorkha_Rifles",
+    //     location: {
+    //         latitude: 26.846694,
+    //         longitude: 80.946166
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Gharwal Rifles",
+    //     nam: "https://en.wikipedia.org/wiki/Gharwal_Rifles",
+    //     location: {
+    //         latitude: 29.837746,
+    //         longitude: 78.687107
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Brigade of the Guards",
+    //     nam: "https://en.wikipedia.org/wiki/Brigade_of_the_Guards",
+    //     location: {
+    //         latitude: 21.227531,
+    //         longitude: 79.190083
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Bihar Regiment",
+    //     nam: "https://en.wikipedia.org/wiki/Bihar_Regiment",
+    //     location: {
+    //         latitude: 25.620667,
+    //         longitude: 85.049325
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Parachute Regiment",
+    //     nam: "https://en.wikipedia.org/wiki/Parachute_Regiment",
+    //     location: {
+    //         latitude: 12.971599,
+    //         longitude: 77.594563
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Ramgarh Cantonment",
+    //     nam: "https://en.wikipedia.org/wiki/Ramgarh_Cantonment",
+    //     location: {
+    //         latitude:23.633224,
+    //         longitude: 85.514874
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Madras Regiment",
+    //     nam: "https://en.wikipedia.org/wiki/Madras_Regiment",
+    //     location: {
+    //         latitude: 11.363560,
+    //         longitude: 76.788471
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Grenadiers Regiment",
+    //     nam: "https://en.wikipedia.org/wiki/Grenadiers_Regiment",
+    //     location: {
+    //         latitude: 23.181467,
+    //         longitude: 79.986407
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Maratha Light Infantry",
+    //     nam: "https://en.wikipedia.org/wiki/Maratha_Light_Infantry",
+    //     location: {
+    //         latitude: 15.849695,
+    //         longitude: 74.497674
+    //     }
+    //     },
+    //     {
+    //     name: "Rajputana Rifles",
+    //     nam: "https://en.wikipedia.org/wiki/Rajputana_Rifles",
+    //     location: {
+    //         latitude: 28.596128,
+    //         longitude: 77.158738
+    //     }
+    //     },
+    //     {
+    //     name: "Kumaon Regiment",
+    //     nam: "https://en.wikipedia.org/wiki/Kumaon_Regiment",
+    //     location: {
+    //         latitude: 29.643362,
+    //         longitude: 79.432182
+    //     }
+    //     }
+    //     ,
+    //     {
+    //     name: "Sikh Light Infantry",
+    //     nam: "https://en.wikipedia.org/wiki/Sikh_Light_Infantry",
+    //     location: {
+    //         latitude: 27.367290,
+    //         longitude: 79.622137
+    //     }
+    //     }
+    // ]
+    // var width_m = 960,
+    //     height_m = 600;
+    // var color_m = d3.scale.ordinal()
+    //             .domain([1,2,3,4,5,6,7,8,9])
+    //             .range(colorbrewer.Oranges[9]);
+    
+    // var projection = d3.geo.mercator()
+    //     .scale(800)
+    //     .translate([-500,600]);
+    
+    // <!--  -->
+
+
+    // var projection_m = d3.geo.mercator().scale(1100).translate([-1000,800]);
+    // var path_m = d3.geo.path()
+    //     .projection(projection_m);
+    
+    // var svg_m = d3.select("#map").append("svg")
+    //     .attr("viewBox", "0 0 900 800")
+    //      .attr("preserveAspectRatio", "xMidYMid meet");
+    // var data_m;
+    // d3.json("jp_city.l.topojson", function(error, swiss) {
+    //     var city = topojson.feature(swiss, swiss.objects.city);
+    //     var projection_m = d3.geo.mercator()
+    //         .center([137, 34])
+    //         .translate([width_m/2, height_m/2])
+    //         .scale(1500);
+    //     var path_m = d3.geo.path().projection(projection_m);
+
+    //     svg_m.selectAll("path")
+    //     .data(city.features)
+    //     .enter()
+    //     .append("path")
+    //     .attr("d", path_m)
+    //     .attr("fill", "rgb(255, 255, 255)")
+    //     .attr("stroke", "#333333")
+    //     .attr("stroke-width", 0.5)
+    //     .attr('data-position', function(d) {
+    //         var p = d3.geo.centroid(d);
+    //         return p[0] + "," + p[1];
+    //     })
+    //               //svg.call(tip);
+             
+    // var group_m=svg_m.selectAll("g")
+    //     .data(cantons_m.features)
+    //     .enter()
+    //     .append("g");
+    //     //.on('mouseover', tip.show)
+    //         //.on('mouseout', tip.hide)
+            
+            
+    // var tip_m = d3.tip()
+    //         .attr('class', 'd3-tip')
+    //         .offset([-5, 0])
+    //         .style("left", "300px")
+    //         .style("top", "400px")
+    //         .html(function(d) {
+    //             return ("<a href="+d.nam+" target='_blank'>"+d.name +"</a>");
+    //         })
+            
+    // svg_m.call(tip_m);
+
+    
+    // svg_m.selectAll(".pin")
+    //             .data(places_m)
+    //             .enter().append("circle", ".pin")
+    //             .attr("r", 5)
+    //             .attr("transform", function(d) {
+    //             return "translate(" + projection_m([
+    //                 d.location.longitude,
+    //                 d.location.latitude
+    //             ]) + ")";
+    //             })
+    //             .on('mouseover', tip_m.show)
+    //             .on('click', tip_m.hide);		
+        
+    // //var projection = d3.geo.mercator().scale(900).translate([-600,700]);
+    // var path_m = d3.geo.path().projection(projection_m);
+
+    // var areas_m = group_m.append("path")
+    //     .attr("d", path_m)
+    //     .attr("class", "area")
+    //     .attr("fill","steelblue");
+                        
+    // });
+    
+    </script>
