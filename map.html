@@ -46,7 +46,9 @@ text {
     color: #fff;
     border-radius: 2px;
     opacity: 0.001%;
+    position: absolute; 
 }
+
 .d3-tip:after {
     box-sizing: border-box;
     display: inline;
@@ -160,15 +162,15 @@ text {
             .append("path")
             .attr("d", path_m)
             .attr("class", "area")
-            .attr("stroke", "black")
+            .attr("stroke", "white")
             .attr("fill","#9ACD32");
 
-        group_m.append("path")
-             .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
-             .attr("d", path_m)
-             .attr("class", "area")
-             .attr("stroke", "black")
-             .attr("fill","#9ACD32");
+        // group_m.append("path")
+        //      .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
+        //      .attr("d", path_m)
+        //      .attr("class", "area")
+        //      .attr("stroke", "black")
+        //      .attr("fill","#9ACD32");
 
         group_m.append("rect")
             .attr("class", "background")
@@ -178,12 +180,15 @@ text {
 
         var tip_m = d3.tip()
                 .attr('class', 'd3-tip')
-                .offset([-5, 0])
-                .style("left", "300px")
-                .style("top", "400px")
+                .offset([-3, 0])
+                // .style("position", "absolute")
+                .style("left", '300px')
+                .style("top", "40px")
                 .html(function(d) {
-                return ("<a href="+d.link+" target='_blank'>"+d.name +"</a>");
+                return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
             })
+                .style("width", "200px")
+                .style("height", "50px");
         
         svg_m.call(tip_m);
         console.log(tip_m);
@@ -212,7 +217,7 @@ text {
             group_m.selectAll("path")
                 .attr("d", path_m)
                 .attr("class", "area")
-                .attr("stroke", "black")
+                .attr("stroke", "white")
                 .attr("fill","#9ACD32");
             pin.attr("transform", function(d) {
                     return "translate(" + projection_m([
@@ -227,7 +232,7 @@ text {
             group_m.selectAll("path")
                 .attr("d", path_m)
                 .attr("class", "area")
-                .attr("stroke", "black")
+                .attr("stroke", "white")
                 .attr("fill","#9ACD32");
             pin.attr("transform", function(d) {
                     return "translate(" + projection_m([
