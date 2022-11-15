@@ -74,7 +74,7 @@ input[type="range"] {
   appearance: none;
   cursor: pointer; /* カーソルを分かりやすく */
   outline: none; /* スライダーのアウトラインは見た目がキツイので消す */
-  height: 14px; /* バーの高さ */
+  height: 10px; /* バーの高さ */
   width: 300px; /* バーの幅 */
   background: #8acdff; /* バーの背景色 */
   border-radius: 10px; /* バーの両端の丸み */
@@ -95,54 +95,82 @@ input[type="range"] {
 <div>
     <input type="button" value="reset" id="btn1" style="position: absolute; left: 50px; top: 50px"/>
 </div>
-<input type="range" id="enka" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 50px"/>
-<p style="position: absolute; left: 900px; top: 55px">現在の値は<span id="enka-value"></span>です</p>
+<input type="range" id="enka" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 450px"/>
+<p style="position: absolute; left: 900px; top: 430px">塩化物: <span id="enka-value"></span></p>
 
-<input type="range" id="tansan" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 90px"/>
-<p style="position: absolute; left: 900px; top: 95px">現在の値は<span id="tansan-value"></span>です</p>
+<input type="range" id="tansan" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 490px"/>
+<p style="position: absolute; left: 900px; top: 470px">炭酸: <span id="tansan-value"></span></p>
 
-<input type="range" id="iou" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 130px"/>
-<p style="position: absolute; left: 900px; top: 135px">現在の値は<span id="iou-value"></span>です</p>
+<input type="range" id="iou" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 530px"/>
+<p style="position: absolute; left: 900px; top: 510px">硫黄: <span id="iou-value"></span></p>
 
-<input type="range" id="housya" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 170px"/>
-<p style="position: absolute; left: 900px; top: 175px">現在の値は<span id="housya-value"></span>です</p>
+<input type="range" id="housya" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 570px"/>
+<p style="position: absolute; left: 900px; top: 550px">放射能: <span id="housya-value"></span></p>
 
-<input type="range" id="ryusan" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 210px"/>
-<p style="position: absolute; left: 900px; top: 215px">現在の値は<span id="ryusan-value"></span>です</p>
+<input type="range" id="ryusan" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 610px"/>
+<p style="position: absolute; left: 900px; top: 590px">硫酸: <span id="ryusan-value"></span></p>
 
-<input type="range" id="sansei" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 250px"/>
-<p style="position: absolute; left: 900px; top: 255px">現在の値は<span id="sansei-value"></span>です</p>
+<input type="range" id="sansei" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 650px"/>
+<p style="position: absolute; left: 900px; top: 630px">酸性: <span id="sansei-value"></span></p>
 
-<input type="range" id="gantetsu" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 290px"/>
-<p style="position: absolute; left: 900px; top: 295px">現在の値は<span id="gantetsu-value"></span>です</p>
+<input type="range" id="gantetsu" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 690px"/>
+<p style="position: absolute; left: 900px; top: 670px">含鉄: <span id="gantetsu-value"></span></p>
 
-<input type="range" id="nisan" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 330px"/>
-<p style="position: absolute; left: 900px; top: 335px">現在の値は<span id="nisan-value"></span>です</p>
+<input type="range" id="nisan" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 730px"/>
+<p style="position: absolute; left: 900px; top: 710px">二酸化炭素: <span id="nisan-value"></span></p>
 
-<input type="range" id="youso" min="1" max="10" step="1" style="position: absolute; left: 900px; top: 370px"/>
-<p style="position: absolute; left: 900px; top: 375px">現在の値は<span id="youso-value"></span>です</p>
+<input type="range" id="youso" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 770px"/>
+<p style="position: absolute; left: 900px; top: 750px">ヨウ素: <span id="youso-value"></span></p>
 
 <script>
 
+    const inputElemdict = {enka:document.getElementById('enka'), tansan:document.getElementById('tansan'), iou:document.getElementById('iou'), 
+                            housya:document.getElementById('housya'), ryusan:document.getElementById('ryusan'), sansei:document.getElementById('sansei'), 
+                            gantetsu:document.getElementById('gantetsu'), nisan:document.getElementById('nisan'), youso:document.getElementById('youso')}
 
-    const inputElem = document.getElementById('enka'); // input要素
-    const currentValueElem = document.getElementById('enka-value'); // 埋め込む先のspan要素
+    const currentValueElemdict = {enka:document.getElementById('enka-value'), tansan:document.getElementById('tansan-value'), iou:document.getElementById('iou-value'), 
+                            housya:document.getElementById('housya-value'), ryusan:document.getElementById('ryusan-value'), sansei:document.getElementById('sansei-value'), 
+                            gantetsu:document.getElementById('gantetsu-value'), nisan:document.getElementById('nisan-value'), youso:document.getElementById('youso-value')}
 
-    // 現在の値をspanに埋め込む関数
-    const setCurrentValue = (val) => {
-    currentValueElem.innerText = val;
-    // 濃度で絞る関数を書く
+
+    const setCurrentValuedict = (name, val) => {
+        for(var key in inputElemdict) {
+            console.log(key);
+            if (key == name) currentValueElemdict[key].innerText = val;
+            // 濃度で絞る関数を書く
+        }
     }
 
-    // inputイベント時に値をセットする関数
-    const rangeOnChange = (e) =>{
-    setCurrentValue(e.target.value);
+    const rangeOnChangedict = (e) =>{
+    setCurrentValuedict(e.target.id, e.target.value);
     }
-
+    
     window.onload = () => {
-    inputElem.addEventListener('input', rangeOnChange); // スライダー変化時にイベントを発火
-    setCurrentValue(inputElem.value); // ページ読み込み時に値をセット
+        Object.keys(inputElemdict).forEach(function(key) {
+            inputElemdict[key].addEventListener('input', rangeOnChangedict);
+            setCurrentValuedict(key, inputElemdict[key].value)})
+    // inputElemdict.addEventListener('input', rangeOnChangedict); // スライダー変化時にイベントを発火
+    // setCurrentValuedict(inputElemdict.value); // ページ読み込み時に値をセット
     }
+
+    // const inputElem = document.getElementById('enka'); // input要素
+    // const currentValueElem = document.getElementById('enka-value'); // 埋め込む先のspan要素
+
+    // // 現在の値をspanに埋め込む関数
+    // const setCurrentValue = (val) => {
+    // currentValueElem.innerText = val;
+    // // 濃度で絞る関数を書く
+    // }
+
+    // // inputイベント時に値をセットする関数
+    // const rangeOnChange = (e) =>{
+    // setCurrentValue(e.target.value);
+    // }
+
+    // window.onload = () => {
+    // inputElem.addEventListener('input', rangeOnChange); // スライダー変化時にイベントを発火
+    // setCurrentValue(inputElem.value); // ページ読み込み時に値をセット
+    // }
 
     var onsen_list = [];
     d3.csv("./onsen_info.csv", function(data){
@@ -290,7 +318,7 @@ input[type="range"] {
         }
 
         function reset(event, d){
-            projection_m.translate([width_m/4, height_m/2]).scale(1500);
+            projection_m.translate([width_m/2, height_m/2]).scale(1500);
             group_m.selectAll("path")
                 .attr("d", path_m)
                 .attr("class", "area")
