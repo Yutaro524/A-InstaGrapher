@@ -22,7 +22,7 @@ def get_items(url, df, columns):
             links = item.select("td.hp")[0]
             link = links.find("a").get("href")
         except IndexError:
-            link = "なし"
+            link = ""
         tanjun, enka, tansan, iou, housya, ryusan, sansei, gantetsu, nisan, youso = def_kounou(item)
         try:
             hyoka = item.select_one("td.rt").text
