@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 40px;
+  position: relative;
+  width: 800px;
+}
+
+form {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+/* path {
+  stroke: black;
+  fill-rule: nonzero;
+} */
+
+.detail text {
+  font: 10px sans-serif;
+}
+
+.detail path,
+.detail line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.detail path {
+  display: none;
+}
+
+.background {
+  fill: none;
+  pointer-events: all;
+}
+
+
+			
+</style>
+<body>
+<!-- <form>
+  <label><input type="radio" name="mode" value="size"> Size</label>
+  <label><input type="radio" name="mode" value="count" checked> Count</label>
+</form> -->
+<script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="./topojson.js"></script>
+
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<div id = "map" style = "float : left; min-width:320px;width :50%;height : 30px"> 
+    <div id="subtitle"></div>
+    <input type="button" value="reset" id="btn1" style="position: absolute; left: 120px; top: 50px"/>
+</div>
+<script>
+
+var onsen_list = [];
+d3.csv("merged_onsen_info.csv", function(data){
+    data.forEach(function(d){
+        d["kounou"] = kounou(d)
+        onsen_list.push(d);
+    })
+    console.log(onsen_list);
+
+    function kounou(d){
+        kounou_list = [];
+        if (d.tanjun=="True") kounou_list.push("単純");
+        if (d.enka=="True") kounou_list.push("塩化");
+        if (d.tansan=="True") kounou_list.push("炭酸");
+        if (d.iou=="True") kounou_list.push("硫黄");
+        if (d.housya=="True") kounou_list.push("放射能");
+        if (d.ryusan=="True") kounou_list.push("硫酸");
+        if (d.sansei=="True") kounou_list.push("酸性");
+        if (d.gantetsu=="True") kounou_list.push("含鉄");
+        if (d.nisan=="True") kounou_list.push("二酸");
+        if (d.youso=="True") kounou_list.push("ヨウ素");
+        if (kounou_list.length == 0) kounou_list.push("なし");
+        return kounou_list;
+    }
+    
+
+    function dashboard(id, fData){
+        var width_m = 800;
+        var height_m = 800;
+        var color_m = d3.scale.category20();
+        var projection_m = d3.geo.mercator()
+                            .center([137, 36])
+                            .translate([width_m/2, height_m/2])
+                            .scale(1500);
+
+        var path_m = d3.geo.path().projection(projection_m);
+        
+        var svg_m = d3.select("body").append("svg")
+                    .attr("min-x", 0)
+                    .attr("min-y", 0)
+                    .attr("width", width_m)
+                    .attr("height", height_m);
+        
+        var margin = { top: 35, right: 0, bottom: 30, left: 40 };
+        var width_d = 800 - margin.left - margin.right;
+        var height_d = 500 - margin.top - margin.bottom;
+
+        var svg_d = d3.select("body").append("svg")
+                    .attr("min-x", 0)
+                    .attr("min-y", 800)
+                    .attr("width", 800)
+                    .attr("height", 500)
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+        d3.json("./jp_city.l.topojson", function(v){
+
+            var zoom = d3.behavior.zoom()
+            .translate(projection_m.translate())
+            .scale(projection_m.scale())
+            .scaleExtent([height_m, 8 * height_m])
+            .on("zoom", zoomed);
+
+
+            var target = d3.selectAll("#btn1")
+                .on("click", reset);
+
+            var group_m = svg_m
+                .append("g")
+                .call(zoom);
+
+            var japan = topojson.feature(v, v.objects.city);
+
+
+            group_m.selectAll("path").data(japan.features)
+                .enter()
+                .append("path")
+                .attr("d", path_m)
+                .attr("class", "area")
+                .attr("stroke", "white")
+                .attr("fill","#9ACD32");
+
+            // group_m.append("path")
+            //      .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
+            //      .attr("d", path_m)
+            //      .attr("class", "area")
+            //      .attr("stroke", "black")
+            //      .attr("fill","#9ACD32");
+
+            group_m.append("rect")
+                .attr("class", "background")
+                .attr("stroke", "black")
+                .attr("width", width_d)
+                .attr("height", height_d);
+
+            var tip_m = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .offset([-3, 0])
+                    // .style("position", "absolute")
+                    .style("left", '300px')
+                    .style("top", "40px")
+                    .html(function(d) {
+                    return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
+                })
+                    .style("width", "200px")
+                    .style("height", "50px");
+            
+            svg_m.call(tip_m);
+
+            
+            
+            var pin = svg_m.selectAll(".pin")
+                        .data(onsen_list)
+                        .enter().append("circle", ".pin")
+                        .attr("r", 5)
+                        .attr("stroke", "black")
+                        .attr("fill", function(d){ return color_m(d.kounou.shift())})
+                        .attr("transform", function(d) {
+                        return "translate(" + projection_m([
+                            d.longitude,
+                            d.latitude
+                        ]) + ")";
+                        })
+                        .on('mouseover', mouseover)
+                        .on('click', click);	
+
+            console.log(pin);
+
+            function mouseover(d){
+                svg_d.selectAll(".detail")
+                    .remove();
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "left")
+                    .attr("transform", "translate(30, 30)")
+                    .style("font-size", "20px")
+                    .text("温泉名：" + d.name);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "left")
+                    .attr("transform", "translate(30, 60)")
+                    .style("font-size", "20px")
+                    .text("効能：" + d.kounou);
+                var bar_dataset = [];
+                const keys = Object.keys(d);
+                for (let i = 0; i < keys.length; i++){
+                    if (i >= 53 && i < 81){
+                        bar_dataset.push({"name" :keys[i], "value" : d[keys[i]]});
+                    }
+                }
+
+
+                var x_d = d3.scale.ordinal()
+                                .domain(bar_dataset.map(function(dx){return dx["name"]}))
+                                .rangeRoundBands([0, width_d], .1);
+
+                var y_d = d3.scale.log()
+                                .domain([1, 10000])
+                                .range([0, height_d * 0.7]);
+
+                var xAxis = d3.svg.axis()
+                                .scale(x_d)
+                                .orient("bottom");
+
+                var yAxis = d3.svg.axis()
+                                .scale(y_d)
+                                .orient("left");
+
+                svg_d.append("g")
+                    .attr("class", "detail")
+                    .attr("transform", "translate(0,"+height_d+")")
+                    .call(xAxis);
+                
+                svg_d.append("g")
+                    .attr("class", "detail")
+                    .call(yAxis);
+
+                console.log(bar_dataset);
+
+                var bar = svg_d.selectAll("rect")
+                                .data(bar_dataset)
+                                .enter()
+                                .append("rect");
+
+                console.log(bar_dataset);
+                svg_d.append("g")
+                    .selectAll("rect")
+                    .data(bar_dataset)
+                    .enter()
+                    .append("rect")
+                    .attr("class", "detail")
+                    .attr("x", function(dx, i) {return x_d(dx["name"]);})
+                    .attr("y", function(dx) {return height_d - y_d(dx.value+1);})
+                    .attr("width", x_d.rangeBand())
+                    .attr("height", function(dx) {return y_d(dx.value+1);})
+                    .attr("fill", "orange");
+
+                svg_d.append("g")
+                    .selectAll("text")
+                    .data(bar_dataset)
+                    .enter()
+                    .append("text") // テキスト要素追加
+                    .attr("class", "detail")
+                    .attr("text-anchor", "middle")
+                    .attr("x", function(dx) { return x_d(dx["name"]); })
+                    .attr("y", function(dx) { return height_d - y_d(dx.value+1); })
+                    .text(function(dx){ return dx["value"];}) // 配列[1]の文字をラベルにセット
+                    .attr("dx", x_d.rangeBand()/2)
+                    .attr("dy", "-18px") // y軸座標を調整
+                    .attr("fill", "black") // テキストカラー
+                    .attr("font-size", "12px") // フォントサイズ
+                    .attr('text-anchor', "middle");
+            }
+
+            function click(d){
+                svg_d.selectAll(".detail")
+                    .remove();
+            }
+
+            function zoomed() {
+                projection_m.translate(d3.event.translate).scale(d3.event.scale);
+                console.log(d3.event.translate);
+                group_m.selectAll("path")
+                    .attr("d", path_m)
+                    .attr("class", "area")
+                    .attr("stroke", "white")
+                    .attr("fill","#9ACD32");
+                pin.attr("transform", function(d) {
+                        return "translate(" + projection_m([
+                            d.longitude,
+                            d.latitude
+                        ]) + ")";
+                    })
+            }
+
+            function reset(event, d){
+                projection_m.translate([width_m/2, height_m/2]).scale(1500);
+                group_m.selectAll("path")
+                    .attr("d", path_m)
+                    .attr("class", "area")
+                    .attr("stroke", "white")
+                    .attr("fill","#9ACD32");
+                pin.attr("transform", function(d) {
+                        return "translate(" + projection_m([
+                            d.location.longitude,
+                            d.location.latitude
+                        ]) + ")";
+                    })
+            }
+
+                    
+        })
+    }
+    dashboard("#dashboard", onsen_list);
+})
+
+</script>
+</body></html>
