@@ -71,7 +71,7 @@ text {
 
 input[type="range"] {
   -webkit-appearance: none; /* 🚩これ無しだとスタイルがほぼ全く反映されないので注意 */
-  appearance: none;
+  appearance: none; 
   cursor: pointer; /* カーソルを分かりやすく */
   outline: none; /* スライダーのアウトラインは見た目がキツイので消す */
   height: 10px; /* バーの高さ */
@@ -79,6 +79,7 @@ input[type="range"] {
   background: #8acdff; /* バーの背景色 */
   border-radius: 10px; /* バーの両端の丸み */
   border: solid 3px #dff1ff; /* バー周囲の線 */
+  
 }
 			
 </style>
@@ -95,34 +96,79 @@ input[type="range"] {
 <div>
     <input type="button" value="reset" id="btn1" style="position: absolute; left: 50px; top: 50px"/>
 </div>
-<input type="range" id="enka" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 450px"/>
+<input type="checkbox" checked=true class="checkpin" id="単純" style="position: absolute; left: 1000px; top: 50px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 30px">単純 </p>
+<input type="checkbox" checked=true class="checkpin" id="塩化" style="position: absolute; left: 1000px; top: 75px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 55px">塩化 </p>
+<input type="checkbox" checked=true class="checkpin" id="炭酸" style="position: absolute; left: 1000px; top: 100px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 80px">炭酸 </p>
+<input type="checkbox" checked=true class="checkpin" id="硫黄" style="position: absolute; left: 1000px; top: 125px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 105px">硫黄 </p>
+<input type="checkbox" checked=true class="checkpin" id="放射能" style="position: absolute; left: 1000px; top: 150px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 130px">放射能 </p>
+<input type="checkbox" checked=true class="checkpin" id="硫酸" style="position: absolute; left: 1000px; top: 175px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 155px">硫酸 </p>
+<input type="checkbox" checked=true class="checkpin" id="酸性" style="position: absolute; left: 1000px; top: 200px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 180px">酸性 </p>
+<input type="checkbox" checked=true class="checkpin" id="含鉄" style="position: absolute; left: 1000px; top: 225px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 205px">含鉄 </p>
+<input type="checkbox" checked=true class="checkpin" id="二酸" style="position: absolute; left: 1000px; top: 250px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 230px">二酸 </p>
+<input type="checkbox" checked=true class="checkpin" id="ヨウ素" style="position: absolute; left: 1000px; top: 275px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 255px">ヨウ素 </p>
+<input type="checkbox" checked=true class="checkpin" id="なし" style="position: absolute; left: 1000px; top: 300px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 280px">なし </p>
+<div>
+
+
+</div>>
+<input type="range" id="enka" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 450px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 450px"/>
 <p style="position: absolute; left: 900px; top: 430px">塩化物: <span id="enka-value"></span></p>
 
-<input type="range" id="tansan" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 490px"/>
+<input type="range" id="tansan" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 490px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 490px"/>
 <p style="position: absolute; left: 900px; top: 470px">炭酸: <span id="tansan-value"></span></p>
 
-<input type="range" id="iou" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 530px"/>
+<input type="range" id="iou" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 530px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 530px"/>
 <p style="position: absolute; left: 900px; top: 510px">硫黄: <span id="iou-value"></span></p>
 
-<input type="range" id="housya" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 570px"/>
+<input type="range" id="housya" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 570px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 570px"/>
 <p style="position: absolute; left: 900px; top: 550px">放射能: <span id="housya-value"></span></p>
 
-<input type="range" id="ryusan" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 610px"/>
+<input type="range" id="ryusan" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 610px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 610px"/>
 <p style="position: absolute; left: 900px; top: 590px">硫酸: <span id="ryusan-value"></span></p>
 
-<input type="range" id="sansei" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 650px"/>
+<input type="range" id="sansei" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 650px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 650px"/>
 <p style="position: absolute; left: 900px; top: 630px">酸性: <span id="sansei-value"></span></p>
 
-<input type="range" id="gantetsu" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 690px"/>
+<input type="range" id="gantetsu" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 690px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 690px"/>
 <p style="position: absolute; left: 900px; top: 670px">含鉄: <span id="gantetsu-value"></span></p>
 
-<input type="range" id="nisan" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 730px"/>
+<input type="range" id="nisan" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 730px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 730px"/>
 <p style="position: absolute; left: 900px; top: 710px">二酸化炭素: <span id="nisan-value"></span></p>
 
-<input type="range" id="youso" min="1" max="10" step="1" style="position: absolute; left: 1000px; top: 770px"/>
+<input type="range" id="youso" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 770px" autocomplete="off"/>
+<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 770px"/>
 <p style="position: absolute; left: 900px; top: 750px">ヨウ素: <span id="youso-value"></span></p>
 
 <script>
+
+    var target = d3.selectAll(".btnupdown")
+            .on("click", updown);
+
+    function updown(event) {
+        if (this.value == "lower") {
+            this.value = "upper";
+        }
+        else {this.value = "lower"; }
+    }
 
     const inputElemdict = {enka:document.getElementById('enka'), tansan:document.getElementById('tansan'), iou:document.getElementById('iou'), 
                             housya:document.getElementById('housya'), ryusan:document.getElementById('ryusan'), sansei:document.getElementById('sansei'), 
@@ -135,7 +181,7 @@ input[type="range"] {
 
     const setCurrentValuedict = (name, val) => {
         for(var key in inputElemdict) {
-            console.log(key);
+            // console.log(key);
             if (key == name) currentValueElemdict[key].innerText = val;
             // 濃度で絞る関数を書く
         }
@@ -235,7 +281,7 @@ input[type="range"] {
 
 
         var target = d3.selectAll("#btn1")
-            .on("click", reset);
+            .on("click", resetsize);
 
         var group_m = svg_m
             .append("g")
@@ -285,9 +331,11 @@ input[type="range"] {
         var pin = svg_m.selectAll(".pin")
                     .data(onsen_list)
                     .enter().append("circle", ".pin")
+                    .attr("id", function(d) {return d.kounou})
                     .attr("r", 5)
                     .attr("stroke", "black")
                     .attr("fill", function(d){ return color_m(d.kounou.shift())})
+                    .attr("visibility", "visible")
                     .attr("transform", function(d) {
                     return "translate(" + projection_m([
                         d.location.longitude,
@@ -298,6 +346,28 @@ input[type="range"] {
                     .on('click', tip_m.hide);	
 
         console.log(pin);
+
+        var checkboxes = d3.selectAll(".checkpin")
+            .on("click", checking);
+    
+        function checking(event) {
+            var a = this.id;
+            if (this.checked == false) {
+                pin.each(function (d) {
+                    if (this.id.includes(a)) {
+                        d3.select(this).attr("visibility", "hidden");
+                    }
+                })
+            }
+            else {
+                pin.each(function (d) {
+                    if (this.id.includes(a)) {
+                        d3.select(this).attr("visibility", "visible");
+                    }
+                })
+
+            }
+        }
 
         function zoomed() {
             projection_m.translate(d3.event.translate).scale(d3.event.scale);
@@ -317,7 +387,7 @@ input[type="range"] {
                 })
         }
 
-        function reset(event, d){
+        function resetsize(event, d){
             projection_m.translate([width_m/2, height_m/2]).scale(1500);
             group_m.selectAll("path")
                 .attr("d", path_m)
