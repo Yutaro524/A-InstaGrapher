@@ -110,6 +110,7 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("min-y", 800)
                     .attr("width", 800)
                     .attr("height", 500)
+                    .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
@@ -214,9 +215,9 @@ d3.csv("merged_onsen_info.csv", function(data){
                                 .domain(bar_dataset.map(function(dx){return dx["name"]}))
                                 .rangeRoundBands([0, width_d], .1);
 
-                var y_d = d3.scale.log()
-                                .domain([1, 10000])
-                                .range([0, height_d * 0.7]);
+                var y_d = d3.scale.linear()
+                                .domain([0, 10000])
+                                .range([height_d, height_d*0.2]);
 
                 var xAxis = d3.svg.axis()
                                 .scale(x_d)
@@ -225,6 +226,8 @@ d3.csv("merged_onsen_info.csv", function(data){
                 var yAxis = d3.svg.axis()
                                 .scale(y_d)
                                 .orient("left");
+                
+                console.log(yAxis);
 
                 svg_d.append("g")
                     .attr("class", "detail")
@@ -235,14 +238,13 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("class", "detail")
                     .call(yAxis);
 
-                console.log(bar_dataset);
-
                 var bar = svg_d.selectAll("rect")
                                 .data(bar_dataset)
                                 .enter()
                                 .append("rect");
 
                 console.log(bar_dataset);
+                console.log(data);
                 svg_d.append("g")
                     .selectAll("rect")
                     .data(bar_dataset)
@@ -250,9 +252,9 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .append("rect")
                     .attr("class", "detail")
                     .attr("x", function(dx, i) {return x_d(dx["name"]);})
-                    .attr("y", function(dx) {return height_d - y_d(dx.value+1);})
+                    .attr("y", function(dx) {return y_d(dx.value+1);})
                     .attr("width", x_d.rangeBand())
-                    .attr("height", function(dx) {return y_d(dx.value+1);})
+                    .attr("height", function(dx) {return height_d - y_d(dx.value+1);})
                     .attr("fill", "orange");
 
                 svg_d.append("g")
@@ -263,7 +265,7 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("class", "detail")
                     .attr("text-anchor", "middle")
                     .attr("x", function(dx) { return x_d(dx["name"]); })
-                    .attr("y", function(dx) { return height_d - y_d(dx.value+1); })
+                    .attr("y", function(dx) {return y_d(dx.value+1);})
                     .text(function(dx){ return dx["value"];}) // 配列[1]の文字をラベルにセット
                     .attr("dx", x_d.rangeBand()/2)
                     .attr("dy", "-18px") // y軸座標を調整
