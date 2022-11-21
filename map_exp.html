@@ -21,7 +21,7 @@ form {
 } */
 
 .detail text {
-  font: 10px sans-serif;
+  font: 6px sans-serif;
 }
 
 .detail path,
@@ -101,7 +101,7 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("width", width_m)
                     .attr("height", height_m);
         
-        var margin = { top: 35, right: 0, bottom: 30, left: 40 };
+        var margin = { top: 35, right: 20, bottom: 0, left: 40 };
         var width_d = 800 - margin.left - margin.right;
         var height_d = 500 - margin.top - margin.bottom;
 
@@ -192,36 +192,66 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .remove();
                 svg_d.append("text")
                     .attr("class", "detail")
-                    .attr("text-anchor", "left")
-                    .attr("transform", "translate(30, 30)")
-                    .style("font-size", "20px")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 280)")
+                    .style("font-size", "12px")
                     .text("温泉名：" + d.name);
                 svg_d.append("text")
                     .attr("class", "detail")
-                    .attr("text-anchor", "left")
-                    .attr("transform", "translate(30, 60)")
-                    .style("font-size", "20px")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 310)")
+                    .style("font-size", "12px")
                     .text("効能：" + d.kounou);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 340)")
+                    .style("font-size", "12px")
+                    .text("【周辺の泉質詳細】");
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 370)")
+                    .style("font-size", "12px")
+                    .text("pH：" + d.pH);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 400)")
+                    .style("font-size", "12px")
+                    .text("Rn(マッヘ)：" + d["Rn(マッヘ)"]);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 430)")
+                    .style("font-size", "12px")
+                    .text("KMn04消費：" + d["KMn04消費"]);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 460)")
+                    .style("font-size", "12px")
+                    .text("調査日：" + d["調査日"]);
                 var bar_dataset = [];
                 const keys = Object.keys(d);
                 for (let i = 0; i < keys.length; i++){
-                    if (i >= 53 && i < 81){
+                    if (i >= 53 && i < 108){
                         bar_dataset.push({"name" :keys[i], "value" : d[keys[i]]});
                     }
                 }
 
 
-                var x_d = d3.scale.ordinal()
+                var y_d = d3.scale.ordinal()
                                 .domain(bar_dataset.map(function(dx){return dx["name"]}))
-                                .rangeRoundBands([0, width_d], .1);
+                                .rangeRoundBands([0, height_d], .1);
 
-                var y_d = d3.scale.linear()
-                                .domain([0, 10000])
-                                .range([height_d, height_d*0.2]);
+                var x_d = d3.scale.sqrt()
+                                .domain([0.0, 2000.0])
+                                .range([0, width_d]);
 
                 var xAxis = d3.svg.axis()
                                 .scale(x_d)
-                                .orient("bottom");
+                                .orient("top");
 
                 var yAxis = d3.svg.axis()
                                 .scale(y_d)
@@ -231,7 +261,7 @@ d3.csv("merged_onsen_info.csv", function(data){
 
                 svg_d.append("g")
                     .attr("class", "detail")
-                    .attr("transform", "translate(0,"+height_d+")")
+                    .attr("transform", "translate(0,0)")
                     .call(xAxis);
                 
                 svg_d.append("g")
@@ -251,10 +281,10 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .enter()
                     .append("rect")
                     .attr("class", "detail")
-                    .attr("x", function(dx, i) {return x_d(dx["name"]);})
-                    .attr("y", function(dx) {return y_d(dx.value+1);})
-                    .attr("width", x_d.rangeBand())
-                    .attr("height", function(dx) {return height_d - y_d(dx.value+1);})
+                    .attr("x", 0)
+                    .attr("y", function(dx) {return y_d(dx.name);})
+                    .attr("width", function(dx) {return x_d(dx.value);})
+                    .attr("height", y_d.rangeBand())
                     .attr("fill", "orange");
 
                 svg_d.append("g")
@@ -264,14 +294,16 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .append("text") // テキスト要素追加
                     .attr("class", "detail")
                     .attr("text-anchor", "middle")
-                    .attr("x", function(dx) { return x_d(dx["name"]); })
-                    .attr("y", function(dx) {return y_d(dx.value+1);})
+                    .attr("x", function(dx) {return x_d(dx.value);})
+                    .attr("y", function(dx) { return y_d(dx["name"]); })
                     .text(function(dx){ return dx["value"];}) // 配列[1]の文字をラベルにセット
-                    .attr("dx", x_d.rangeBand()/2)
-                    .attr("dy", "-18px") // y軸座標を調整
+                    .attr("dy", y_d.rangeBand())
+                    .attr("dx", "18px") // x軸座標を調整
                     .attr("fill", "black") // テキストカラー
-                    .attr("font-size", "12px") // フォントサイズ
+                    .attr("font-size", "8px") // フォントサイズ
                     .attr('text-anchor', "middle");
+
+                console.log(svg_d)
             }
 
             function click(d){
