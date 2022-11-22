@@ -5,9 +5,10 @@
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: 40px;
+  padding-bottom: 40px;
   position: relative;
   width: 1600px;
-  height: 1600px;
+  height: auto;
 }
 
 .title {
@@ -224,7 +225,7 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("min-x", 0)
                     .attr("min-y", 800)
                     .attr("width", 800)
-                    .attr("height", 500)
+                    .attr("height", 600)
                     .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -277,6 +278,7 @@ d3.csv("merged_onsen_info.csv", function(data){
             group_m.append("rect")
                 .attr("class", "background")
                 .attr("stroke", "black")
+                .attr("fill", "aqua")
                 .attr("width", width_m)
                 .attr("height", height_m);
 
@@ -301,8 +303,8 @@ d3.csv("merged_onsen_info.csv", function(data){
                         .enter().append("circle", ".pin")
                         // .attr("class", function(d) {return d.name})
                         .attr("id", function(d) {return [d.kounou, d.name]})
-                        .attr("r", 5)
-                        .attr("stroke", "black")
+                        .attr("r", 3)
+                        .attr("stroke", "gray")
                         .attr("fill", function(d){ return color_m(d.kounou[0])})
                         .attr("visibility", "visible")
                         .attr("transform", function(d) {
@@ -338,6 +340,8 @@ d3.csv("merged_onsen_info.csv", function(data){
             }
 
             function mouseover(d){
+                pin.attr("r", 3).attr("stroke", "gray");
+                d3.select(this).attr("r", 7).attr("stroke", "black");
                 svg_d.selectAll(".detail")
                     .remove();
                 var bar_dataset = [];
