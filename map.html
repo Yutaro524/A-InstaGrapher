@@ -5,9 +5,10 @@
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: 40px;
+  padding-bottom: 40px;
   position: relative;
   width: 1600px;
-  height: 1600px;
+  height: auto;
 }
 
 .title {
@@ -33,8 +34,8 @@ body {
 
 .content_d {
     position: absolute;
-	top: 450px;
-	left: 900px;
+	top: 400px;
+	left: 800px;
 }
 
 .content_r {
@@ -215,17 +216,19 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("width", width_m)
                     .attr("height", height_m);
         
-        var margin = { top: 35, right: 20, bottom: 0, left: 40 };
-        var width_d = 800 - margin.left - margin.right;
-        var height_d = 500 - margin.top - margin.bottom;
+        var margin_d = { top: 35, right: 20, bottom: 0, left: 60 };
+        var margin_r = { top: 35, right: 20, bottom: 0, left: 40 };
+        var width_d = 900 - margin_d.left - margin_d.right;
+        var height_d = 500 - margin_d.top - margin_d.bottom;
 
         var svg_d = d3.select("body").append("svg")
                     .attr("class", "content_d")
                     .attr("min-x", 0)
                     .attr("min-y", 800)
-                    .attr("width", 800)
-                    .attr("height", 500)
-                    .append("g");
+                    .attr("width", 900)
+                    .attr("height", 600)
+                    .append("g")
+                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")");
 
         svg_d.append("rect")
             .attr("class", "background")
@@ -240,7 +243,7 @@ d3.csv("merged_onsen_info.csv", function(data){
             .attr("width", 400)
             .attr("height", 400)
             .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", "translate(" + margin_r.left + "," + margin_r.top + ")");
                     
         d3.json("./jp_city.l.topojson", function(v){
 
@@ -280,8 +283,7 @@ d3.csv("merged_onsen_info.csv", function(data){
             group_m.append("rect")
                 .attr("class", "background")
                 .attr("stroke", "black")
-                .attr("x", 0)
-                .attr("y", 0)
+                .attr("fill", "aqua")
                 .attr("width", width_m)
                 .attr("height", height_m);
 
@@ -306,8 +308,8 @@ d3.csv("merged_onsen_info.csv", function(data){
                         .enter().append("circle", ".pin")
                         // .attr("class", function(d) {return d.name})
                         .attr("id", function(d) {return [d.kounou, d.name]})
-                        .attr("r", 5)
-                        .attr("stroke", "black")
+                        .attr("r", 3)
+                        .attr("stroke", "gray")
                         .attr("fill", function(d){ return color_m(d.kounou[0])})
                         .attr("visibility", "visible")
                         .attr("transform", function(d) {
@@ -343,6 +345,8 @@ d3.csv("merged_onsen_info.csv", function(data){
             }
 
             function mouseover(d){
+                pin.attr("r", 3).attr("stroke", "gray");
+                d3.select(this).attr("r", 7).attr("stroke", "black");
                 svg_d.selectAll(".detail")
                     .remove();
                 var bar_dataset = [];
@@ -359,7 +363,7 @@ d3.csv("merged_onsen_info.csv", function(data){
 
                 var x_d = d3.scale.sqrt()
                                 .domain([0.0, values.slice(53, 107).reduce(arymax)])
-                                .range([0, width_d*0.7]);
+                                .range([0, 550]);
 
                 var y_d = d3.scale.ordinal()
                                 .domain(bar_dataset.map(function(dx){return dx["name"]}))
@@ -375,12 +379,12 @@ d3.csv("merged_onsen_info.csv", function(data){
 
                 svg_d.append("g")
                     .attr("class", "detail")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
                     .call(xAxis);
                 
                 svg_d.append("g")
                     .attr("class", "detail")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
                     .call(yAxis);
 
                 var bar = svg_d.selectAll("rect")
@@ -398,7 +402,7 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("y", function(dx) {return y_d(dx.name);})
                     .attr("width", function(dx) {return x_d(dx.value);})
                     .attr("height", y_d.rangeBand())
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
                     .attr("fill", "orange");
 
                 svg_d.append("g")
@@ -408,25 +412,25 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .append("text") // テキスト要素追加
                     .attr("class", "detail")
                     .attr("text-anchor", "middle")
-                    .attr("x", function(dx) {return x_d(dx.value);})
+                    .attr("x", 0)
                     .attr("y", function(dx) { return y_d(dx["name"]); })
                     .text(function(dx){ return dx["value"];}) // 配列[1]の文字をラベルにセット
-                    .attr("dy", y_d.rangeBand())
-                    .attr("dx", "18px") // x軸座標を調整
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .attr("dy", y_d.rangeBand()*2/3)
+                    .attr("dx", "8px") // x軸座標を調整
+                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
                     .attr("fill", "black") // テキストカラー
                     .attr("font-size", y_d.rangeBand()/2) // フォントサイズ
                     .attr('text-anchor', "start");
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(" + (700 - d.name.length * 12) +", 200)")
+                    .attr("transform", "translate(" + (800 - d.name.length * 12) +", 200)")
                     .style("font-size", "12px")
                     .text("温泉名：");
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 200)")
+                    .attr("transform", "translate(810, 200)")
                     .style("font-size", "12px")
                     .text(d.name)
                     .on("mouseover", function(){
@@ -443,37 +447,37 @@ d3.csv("merged_onsen_info.csv", function(data){
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 230)")
+                    .attr("transform", "translate(810, 230)")
                     .style("font-size", "12px")
                     .text("泉質：" + d.kounou);
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 260)")
+                    .attr("transform", "translate(810, 260)")
                     .style("font-size", "12px")
                     .text("【周辺の泉質詳細】");
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 290)")
+                    .attr("transform", "translate(810, 290)")
                     .style("font-size", "12px")
                     .text("pH：" + d.pH);
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 320)")
+                    .attr("transform", "translate(810, 320)")
                     .style("font-size", "12px")
                     .text("Rn(マッヘ)：" + d["Rn(マッヘ)"]);
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 350)")
+                    .attr("transform", "translate(810, 350)")
                     .style("font-size", "12px")
                     .text("KMn04消費：" + d["KMnO4消費"]);
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
-                    .attr("transform", "translate(700, 380)")
+                    .attr("transform", "translate(810, 380)")
                     .style("font-size", "12px")
                     .text("調査日：" + d["調査日"]);
 
