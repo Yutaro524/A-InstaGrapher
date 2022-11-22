@@ -31,14 +31,9 @@ body {
 
 form {
   position: absolute;
-  right: 10px;
-  top: 10px;
+  left: 1000px;
+  top: 450px;
 }
-
-/* path {
-  stroke: black;
-  fill-rule: nonzero;
-} */
 
 .detail text {
   font: 6px sans-serif;
@@ -145,8 +140,9 @@ form {
     <p style="position: absolute; left: 1025px; top: 280px; width: 50px">なし </p>
 </div>
 
+<form name="ionrank">
 <div class="select">
-    <select name="prefecture" style="position: absolute; left: 1000px; top: 450px" autocomplete="off">
+    <select name="prefecture" autocomplete="off">
 		<option value="">選択してください</option>
 		<option value="Na+">Na&#x207a</option>
 		<option value="Ca2+">Ca&sup2&#x207a</option>
@@ -154,7 +150,7 @@ form {
 		<option value="CO32−">CO&#x2083&sup2&#x207b</option>
 	</select>
 </div>
-
+</form>
 <script>
 
 var onsen_list = [];
@@ -304,6 +300,8 @@ d3.csv("merged_onsen_info.csv", function(data){
             checkboxes.on("click", checking);
     
             function checking(event) {
+                    document.ionrank.reset();
+                    d3.selectAll(".rankbar").remove();
                     pin.attr("visibility", "visible");
                     
                     checkboxes[0].forEach(function (value) {
@@ -501,6 +499,12 @@ d3.csv("merged_onsen_info.csv", function(data){
             function ranking(event) {
 
                 d3.selectAll(".rankbar").remove();
+
+                let targets = document.querySelectorAll(`input[type='checkbox']`);
+
+                for (const i of targets) {
+                        i.checked = false;
+                }
 
                 var ingr = selecting.node().value;
                 console.log(ingr);
