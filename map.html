@@ -389,7 +389,13 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("fill", "black") // テキストカラー
                     .attr("font-size", y_d.rangeBand()/2) // フォントサイズ
                     .attr('text-anchor', "start");
-
+                svg_d.append("rect")
+                    .attr("x", 448)
+                    .attr("y", 180)
+                    .attr("width", 12*21+6)
+                    .attr("height", 210)
+                    .attr("fill", "transparent")
+                    .attr("stroke", "black");
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
@@ -413,13 +419,6 @@ d3.csv("merged_onsen_info.csv", function(data){
                             .attr("text-decoration", null);
                     })
                     .on("click", function(){window.open(click_onsen_name())});
-                svg_d.append("rect")
-                    .attr("x", 448)
-                    .attr("y", 180)
-                    .attr("width", 12*21+6)
-                    .attr("height", 210)
-                    .attr("fill", "transparent")
-                    .attr("stroke", "black");
                 svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
