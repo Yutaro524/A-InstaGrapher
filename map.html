@@ -7,6 +7,26 @@ body {
   margin: 40px;
   position: relative;
   width: 1600px;
+  height: 1600px;
+}
+
+.content_m {
+    position: absolute;
+	top: 0;
+	left: 0;
+    z-index: 0;
+}
+
+.content_d {
+    position: absolute;
+	top: 800px;
+	left: 0;
+}
+
+.content_r {
+    position: absolute;
+	top: 500px;
+	left: 900px;
 }
 
 form {
@@ -20,67 +40,69 @@ form {
   fill-rule: nonzero;
 } */
 
+.detail text {
+  font: 6px sans-serif;
+}
+
+.detail path,
+.detail line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.detail path {
+  display: none;
+}
+
 .background {
   fill: none;
   pointer-events: all;
 }
 
-.canton-boundary {
-  fill: black;
-  stroke: #fff;
-  stroke-linejoin: round;
+
+.tooltip { /* 補足説明するテキストのスタイル */
+  position: relative;
+  cursor: pointer;
+}
+ 
+.balloon_right { /* ツールチップのスタイル */
+  width: 150px; /* 横幅 */
+  position: absolute;
+  top: 50%;
+  left: 80%; /* X軸の位置 */
+  transform: translateY(-50%);
+  margin-left: 16px; /* テキストとの距離 */
+  padding: 8px;
+  border-radius: 10px; /* 角の丸み */
+  background-color: #666;
+  font-size: 0.7em;
+  color: #fff;
+  text-align: center;
+  visibility: hidden; /* ツールチップを非表示に */
+  opacity: 0; /*不透明度を0％に */
+  z-index: 1;
+  transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
+}
+ 
+.balloon_right::before { /* 吹き出しの「しっぽ」のスタイル */
+  content: "";
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-right: 12px solid #666; /* 最後の値は「ツールチップの背景色」と合わせる */
+  position: absolute;
+  top: 50%;
+  right: 99%;
+  transform: translateY(-50%);
+}
+ 
+.tooltip:hover .balloon_right { /* マウスオーバー時のスタイル */
+  left: 100%; /* X軸の位置 */
+  visibility: visible; /* ツールチップを表示 */
+  opacity: 1; /* 不透明度を100％に */
 }
 
-text {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 10px;
-  text-anchor: middle;
-}
-
-
-.d3-tip {
-    line-height: 1;
-    font-weight: bold;
-    padding: 12px;
-    background: #9ACD32;
-    color: #fff;
-    border-radius: 2px;
-    opacity: 0.001%;
-    position: absolute; 
-}
-
-.d3-tip:after {
-    box-sizing: border-box;
-    display: inline;
-    font-size: 10px;
-    width: 100%;
-    line-height: 1;
-    color: #fff;
-    content: "\25BC";
-    position: absolute;
-    text-align: center;
-    opacity: 0.001%;
-}
-
-.d3-tip.n:after {
-    margin: -1px 0 0 0;
-    top: 100%;
-    left: 0;
-    opacity: 0.001%;
-}
-
-input[type="range"] {
-  -webkit-appearance: none; /* 🚩これ無しだとスタイルがほぼ全く反映されないので注意 */
-  appearance: none; 
-  cursor: pointer; /* カーソルを分かりやすく */
-  outline: none; /* スライダーのアウトラインは見た目がキツイので消す */
-  height: 10px; /* バーの高さ */
-  width: 300px; /* バーの幅 */
-  background: #8acdff; /* バーの背景色 */
-  border-radius: 10px; /* バーの両端の丸み */
-  border: solid 3px #dff1ff; /* バー周囲の線 */
-  
-}
 			
 </style>
 <body>
@@ -93,650 +115,468 @@ input[type="range"] {
 <script src="./topojson.js"></script>
 
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<!-- <div id = "map" style = "float : left; min-width:320px;width :50%;height : 30px">  -->
+    <div id="subtitle"></div>
+    <input type="button" value="reset" id="btn1" style="position: absolute; left: 120px; top: 50px; z-index: 1;"/>
+<!-- </div> -->
+
 <div>
-    <input type="button" value="reset" id="btn1" style="position: absolute; left: 50px; top: 50px"/>
+<input type="checkbox" class="checkpin" id="単純" style="position: absolute; left: 1000px; top: 50px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 30px; width: 50px">単純 </p>
+<input type="checkbox" class="checkpin" id="塩化" style="position: absolute; left: 1000px; top: 75px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 55px; width: 50px">塩化 </p>
+<input type="checkbox" class="checkpin" id="炭酸" style="position: absolute; left: 1000px; top: 100px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 80px; width: 50px">炭酸 </p>
+<input type="checkbox" class="checkpin" id="硫黄" style="position: absolute; left: 1000px; top: 125px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 105px; width: 50px">硫黄 </p>
+<input type="checkbox" class="checkpin" id="放射能" style="position: absolute; left: 1000px; top: 150px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 130px; width: 50px">放射能 </p>
+<input type="checkbox" class="checkpin" id="硫酸" style="position: absolute; left: 1000px; top: 175px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 155px; width: 50px">硫酸 </p>
+<input type="checkbox" class="checkpin" id="酸性" style="position: absolute; left: 1000px; top: 200px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 180px; width: 50px">酸性 </p>
+<input type="checkbox" class="checkpin" id="含鉄" style="position: absolute; left: 1000px; top: 225px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 205px; width: 50px">含鉄 </p>
+<input type="checkbox" class="checkpin" id="二酸" style="position: absolute; left: 1000px; top: 250px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 230px; width: 50px">二酸 </p>
+<input type="checkbox" class="checkpin" id="ヨウ素" style="position: absolute; left: 1000px; top: 275px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 255px; width: 50px">ヨウ素 </p>
+<input type="checkbox" class="checkpin" id="なし" style="position: absolute; left: 1000px; top: 300px" autocomplete="off"/>
+<p style="position: absolute; left: 1025px; top: 280px; width: 50px">なし </p>
 </div>
-<input type="checkbox" checked=true class="checkpin" id="単純" style="position: absolute; left: 1000px; top: 50px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 30px">単純 </p>
-<input type="checkbox" checked=true class="checkpin" id="塩化" style="position: absolute; left: 1000px; top: 75px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 55px">塩化 </p>
-<input type="checkbox" checked=true class="checkpin" id="炭酸" style="position: absolute; left: 1000px; top: 100px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 80px">炭酸 </p>
-<input type="checkbox" checked=true class="checkpin" id="硫黄" style="position: absolute; left: 1000px; top: 125px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 105px">硫黄 </p>
-<input type="checkbox" checked=true class="checkpin" id="放射能" style="position: absolute; left: 1000px; top: 150px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 130px">放射能 </p>
-<input type="checkbox" checked=true class="checkpin" id="硫酸" style="position: absolute; left: 1000px; top: 175px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 155px">硫酸 </p>
-<input type="checkbox" checked=true class="checkpin" id="酸性" style="position: absolute; left: 1000px; top: 200px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 180px">酸性 </p>
-<input type="checkbox" checked=true class="checkpin" id="含鉄" style="position: absolute; left: 1000px; top: 225px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 205px">含鉄 </p>
-<input type="checkbox" checked=true class="checkpin" id="二酸" style="position: absolute; left: 1000px; top: 250px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 230px">二酸 </p>
-<input type="checkbox" checked=true class="checkpin" id="ヨウ素" style="position: absolute; left: 1000px; top: 275px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 255px">ヨウ素 </p>
-<input type="checkbox" checked=true class="checkpin" id="なし" style="position: absolute; left: 1000px; top: 300px" autocomplete="off"/>
-<p style="position: absolute; left: 1025px; top: 280px">なし </p>
-<div>
 
-
-</div>>
-<input type="range" id="enka" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 450px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 450px"/>
-<p style="position: absolute; left: 900px; top: 430px">塩化物: <span id="enka-value"></span></p>
-
-<input type="range" id="tansan" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 490px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 490px"/>
-<p style="position: absolute; left: 900px; top: 470px">炭酸: <span id="tansan-value"></span></p>
-
-<input type="range" id="iou" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 530px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 530px"/>
-<p style="position: absolute; left: 900px; top: 510px">硫黄: <span id="iou-value"></span></p>
-
-<input type="range" id="housya" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 570px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 570px"/>
-<p style="position: absolute; left: 900px; top: 550px">放射能: <span id="housya-value"></span></p>
-
-<input type="range" id="ryusan" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 610px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 610px"/>
-<p style="position: absolute; left: 900px; top: 590px">硫酸: <span id="ryusan-value"></span></p>
-
-<input type="range" id="sansei" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 650px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 650px"/>
-<p style="position: absolute; left: 900px; top: 630px">酸性: <span id="sansei-value"></span></p>
-
-<input type="range" id="gantetsu" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 690px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 690px"/>
-<p style="position: absolute; left: 900px; top: 670px">含鉄: <span id="gantetsu-value"></span></p>
-
-<input type="range" id="nisan" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 730px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 730px"/>
-<p style="position: absolute; left: 900px; top: 710px">二酸化炭素: <span id="nisan-value"></span></p>
-
-<input type="range" id="youso" min="0" max="10" step="1" style="position: absolute; left: 1000px; top: 770px" autocomplete="off"/>
-<input type="button" value="lower" class="btnupdown" style="position: absolute; left: 1350px; top: 770px"/>
-<p style="position: absolute; left: 900px; top: 750px">ヨウ素: <span id="youso-value"></span></p>
+<div class="select">
+    <select name="prefecture" style="position: absolute; left: 1000px; top: 450px" autocomplete="off">
+		<option value="">選択してください</option>
+		<option value="Na+">Na&#x207a</option>
+		<option value="Ca2+">Ca&sup2&#x207a</option>
+		<option value="Cl−">Cl&#x207b</option>
+		<option value="CO32−">CO&#x2083&sup2&#x207b</option>
+	</select>
+</div>
 
 <script>
 
-    var target = d3.selectAll(".btnupdown")
-            .on("click", updown);
-
-    function updown(event) {
-        if (this.value == "lower") {
-            this.value = "upper";
-        }
-        else {this.value = "lower"; }
-    }
-
-    const inputElemdict = {enka:document.getElementById('enka'), tansan:document.getElementById('tansan'), iou:document.getElementById('iou'), 
-                            housya:document.getElementById('housya'), ryusan:document.getElementById('ryusan'), sansei:document.getElementById('sansei'), 
-                            gantetsu:document.getElementById('gantetsu'), nisan:document.getElementById('nisan'), youso:document.getElementById('youso')}
-
-    const currentValueElemdict = {enka:document.getElementById('enka-value'), tansan:document.getElementById('tansan-value'), iou:document.getElementById('iou-value'), 
-                            housya:document.getElementById('housya-value'), ryusan:document.getElementById('ryusan-value'), sansei:document.getElementById('sansei-value'), 
-                            gantetsu:document.getElementById('gantetsu-value'), nisan:document.getElementById('nisan-value'), youso:document.getElementById('youso-value')}
-
-
-    const setCurrentValuedict = (name, val) => {
-        for(var key in inputElemdict) {
-            // console.log(key);
-            if (key == name) currentValueElemdict[key].innerText = val;
-            // 濃度で絞る関数を書く
-        }
-    }
-
-    const rangeOnChangedict = (e) =>{
-    setCurrentValuedict(e.target.id, e.target.value);
-    }
-    
-    window.onload = () => {
-        Object.keys(inputElemdict).forEach(function(key) {
-            inputElemdict[key].addEventListener('input', rangeOnChangedict);
-            setCurrentValuedict(key, inputElemdict[key].value)})
-    // inputElemdict.addEventListener('input', rangeOnChangedict); // スライダー変化時にイベントを発火
-    // setCurrentValuedict(inputElemdict.value); // ページ読み込み時に値をセット
-    }
-
-    // const inputElem = document.getElementById('enka'); // input要素
-    // const currentValueElem = document.getElementById('enka-value'); // 埋め込む先のspan要素
-
-    // // 現在の値をspanに埋め込む関数
-    // const setCurrentValue = (val) => {
-    // currentValueElem.innerText = val;
-    // // 濃度で絞る関数を書く
-    // }
-
-    // // inputイベント時に値をセットする関数
-    // const rangeOnChange = (e) =>{
-    // setCurrentValue(e.target.value);
-    // }
-
-    // window.onload = () => {
-    // inputElem.addEventListener('input', rangeOnChange); // スライダー変化時にイベントを発火
-    // setCurrentValue(inputElem.value); // ページ読み込み時に値をセット
-    // }
-
-    var onsen_list = [];
-    d3.csv("./onsen_info.csv", function(data){
-
-        data.forEach(function(d)
-        {
-            if (d.latitude != "不明"){
-            onsen_loc = {};
-            onsen_loc["name"] = d.name;
-            onsen_loc["link"] = d.link;
-            onsen_loc["location"] = {"latitude": d.latitude, "longitude": d.longitude};
-            onsen_loc["city"] = d.city;
-            onsen_loc["lv01Nm"] = d.lv01Nm;
-            onsen_loc["hyoka"] = d.hyoka;
-            onsen_loc["comi"] = d.comi;
-            onsen_loc["yado"] = d.yado;
-            onsen_loc["kounou"] = kounou(d);
-            onsen_list.push(onsen_loc);
-            }
-        });
-
-        function kounou(data){
-            kounou_list = [];
-            if (data.tanjun=="True") kounou_list.push("単純");
-            if (data.enka=="True") kounou_list.push("塩化");
-            if (data.tansan=="True") kounou_list.push("炭酸");
-            if (data.iou=="True") kounou_list.push("硫黄");
-            if (data.housya=="True") kounou_list.push("放射能");
-            if (data.ryusan=="True") kounou_list.push("硫酸");
-            if (data.sansei=="True") kounou_list.push("酸性");
-            if (data.gantetsu=="True") kounou_list.push("含鉄");
-            if (data.nisan=="True") kounou_list.push("二酸");
-            if (data.youso=="True") kounou_list.push("ヨウ素");
-            if (kounou_list.length == 0) kounou_list.push("なし");
-            return kounou_list;
-        }
-    });
+var onsen_list = [];
+d3.csv("merged_onsen_info.csv", function(data){
+    data.forEach(function(d){
+        d["kounou"] = kounou(d)
+        onsen_list.push(d);
+    })
     console.log(onsen_list);
 
-    var width_m = 800;
-    var height_m = 800;
-    var color_m = d3.scale.category20();
-    var projection_m = d3.geo.mercator()
-                        .center([137, 36])
-                        .translate([width_m/2, height_m/2])
-                        .scale(1500);
-
-    var path_m = d3.geo.path().projection(projection_m);
+    function kounou(d){
+        kounou_list = [];
+        if (d.tanjun=="True") kounou_list.push("単純");
+        if (d.enka=="True") kounou_list.push("塩化");
+        if (d.tansan=="True") kounou_list.push("炭酸");
+        if (d.iou=="True") kounou_list.push("硫黄");
+        if (d.housya=="True") kounou_list.push("放射能");
+        if (d.ryusan=="True") kounou_list.push("硫酸");
+        if (d.sansei=="True") kounou_list.push("酸性");
+        if (d.gantetsu=="True") kounou_list.push("含鉄");
+        if (d.nisan=="True") kounou_list.push("二酸");
+        if (d.youso=="True") kounou_list.push("ヨウ素");
+        if (kounou_list.length == 0) kounou_list.push("なし");
+        return kounou_list;
+    }
     
-    var svg_m = d3.select("body").append("svg")
-                .attr("width", width_m)
-                .attr("height", height_m);    
 
+    function dashboard(id, fData){
+        var width_m = 800;
+        var height_m = 800;
+        var color_m = d3.scale.category20();
+        var projection_m = d3.geo.mercator()
+                            .center([137, 36])
+                            .translate([width_m/2, height_m/2])
+                            .scale(1500);
 
-    d3.json("./jp_city.l.topojson", function(data){
+        var path_m = d3.geo.path().projection(projection_m);
+        
+        var svg_m = d3.select("body").append("svg")
+                    .attr("class", "content_m")
+                    .attr("min-x", 0)
+                    .attr("min-y", 0)
+                    .attr("width", width_m)
+                    .attr("height", height_m);
+        
+        var margin = { top: 35, right: 20, bottom: 0, left: 40 };
+        var width_d = 800 - margin.left - margin.right;
+        var height_d = 500 - margin.top - margin.bottom;
 
-        var zoom = d3.behavior.zoom()
-        .translate(projection_m.translate())
-        .scale(projection_m.scale())
-        .scaleExtent([height_m, 8 * height_m])
-        .on("zoom", zoomed);
+        var svg_d = d3.select("body").append("svg")
+                    .attr("class", "content_d")
+                    .attr("min-x", 0)
+                    .attr("min-y", 800)
+                    .attr("width", 800)
+                    .attr("height", 500)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        
 
-        var target = d3.selectAll("#btn1")
-            .on("click", resetsize);
-
-        var group_m = svg_m
+        var svg_r = d3.select("body").append("svg")
+            .attr("class", "content_r")
+            .attr("min-x", 800)
+            .attr("min-y", 0)
+            .attr("width", 400)
+            .attr("height", 400)
             .append("g")
-            .call(zoom);
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                    
+        d3.json("./jp_city.l.topojson", function(v){
 
-        var japan = topojson.feature(data, data.objects.city);
+            var zoom = d3.behavior.zoom()
+            .translate(projection_m.translate())
+            .scale(projection_m.scale())
+            .scaleExtent([height_m, 8 * height_m])
+            .on("zoom", zoomed);
 
 
-        group_m.selectAll("path").data(japan.features)
-            .enter()
-            .append("path")
-            .attr("d", path_m)
-            .attr("class", "area")
-            .attr("stroke", "white")
-            .attr("fill","#9ACD32");
+            var target = d3.selectAll("#btn1")
+                .on("click", reset);
 
-        // group_m.append("path")
-        //      .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
-        //      .attr("d", path_m)
-        //      .attr("class", "area")
-        //      .attr("stroke", "black")
-        //      .attr("fill","#9ACD32");
+            var group_m = svg_m
+                .append("g")
+                .call(zoom);
 
-        group_m.append("rect")
-            .attr("class", "background")
-            .attr("stroke", "black")
-            // .translate([10, height_m/2])
-            .attr("width", width_m)
-            .attr("height", height_m);
+            var japan = topojson.feature(v, v.objects.city);
 
-        var tip_m = d3.tip()
-                .attr('class', 'd3-tip')
-                .offset([-3, 0])
-                // .style("position", "absolute")
-                .style("left", '300px')
-                .style("top", "40px")
-                .html(function(d) {
-                return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
-            })
-                .style("width", "200px")
-                .style("height", "50px");
-        
-        svg_m.call(tip_m);
-        console.log(tip_m);
 
-        
-        var pin = svg_m.selectAll(".pin")
-                    .data(onsen_list)
-                    .enter().append("circle", ".pin")
-                    .attr("id", function(d) {return d.kounou})
-                    .attr("r", 5)
-                    .attr("stroke", "black")
-                    .attr("fill", function(d){ return color_m(d.kounou.shift())})
-                    .attr("visibility", "visible")
-                    .attr("transform", function(d) {
-                    return "translate(" + projection_m([
-                        d.location.longitude,
-                        d.location.latitude
-                    ]) + ")";
-                    })
-                    .on('mouseover', tip_m.show)
-                    .on('click', tip_m.hide);	
+            group_m.selectAll("path").data(japan.features)
+                .enter()
+                .append("path")
+                .attr("d", path_m)
+                .attr("class", "area")
+                .attr("stroke", "white")
+                .attr("fill","#9ACD32");
 
-        console.log(pin);
+            // group_m.append("path")
+            //      .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
+            //      .attr("d", path_m)
+            //      .attr("class", "area")
+            //      .attr("stroke", "black")
+            //      .attr("fill","#9ACD32");
 
-        var checkboxes = d3.selectAll(".checkpin")
-            .on("click", checking);
+            group_m.append("rect")
+                .attr("class", "background")
+                .attr("stroke", "black")
+                .attr("width", width_m)
+                .attr("height", height_m);
+
+            var tip_m = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .offset([-3, 0])
+                    // .style("position", "absolute")
+                    .style("left", '300px')
+                    .style("top", "40px")
+                    .html(function(d) {
+                    return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
+                })
+                    .style("width", "200px")
+                    .style("height", "50px");
+            
+            svg_m.call(tip_m);
+
+            
+            
+            var pin = svg_m.selectAll(".pin")
+                        .data(onsen_list)
+                        .enter().append("circle", ".pin")
+                        // .attr("class", function(d) {return d.name})
+                        .attr("id", function(d) {return [d.kounou, d.name]})
+                        .attr("r", 5)
+                        .attr("stroke", "black")
+                        .attr("fill", function(d){ return color_m(d.kounou[0])})
+                        .attr("visibility", "visible")
+                        .attr("transform", function(d) {
+                        return "translate(" + projection_m([
+                            d.longitude,
+                            d.latitude
+                        ]) + ")";
+                        })
+                        .on('mouseover', mouseover)
+                        .on('click', click);	
+
+            console.log(pin);
+
+            var checkboxes = d3.selectAll(".checkpin")
+            checkboxes.on("click", checking);
     
-        function checking(event) {
-            var a = this.id;
-            if (this.checked == false) {
-                pin.each(function (d) {
-                    if (this.id.includes(a)) {
-                        d3.select(this).attr("visibility", "hidden");
-                    }
+            function checking(event) {
+                    pin.attr("visibility", "visible");
+                    
+                    checkboxes[0].forEach(function (value) {
+                        if(value.checked == true) {
+                        pin.each(function (d) {
+                            if (this.id.includes(value.id) != 1) {
+                                d3.select(this).attr("visibility", "hidden");
+                            }
+                        })
+                }
                 })
+
+                   
             }
-            else {
-                pin.each(function (d) {
-                    if (this.id.includes(a)) {
-                        d3.select(this).attr("visibility", "visible");
+
+            function mouseover(d){
+                svg_d.selectAll(".detail")
+                    .remove();
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(" + (700 - d.name.length * 12) +", 280)")
+                    .style("font-size", "12px")
+                    .text("温泉名：");
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 280)")
+                    .style("font-size", "12px")
+                    .text(d.name)
+                    .on("mouseover", function(){
+                        d3.select(this)
+                            .attr("fill", "blue")
+                            .attr("text-decoration", "underline");
+                    })
+                    .on("mouseout", function(){
+                        d3.select(this)
+                            .attr("fill", "black")
+                            .attr("text-decoration", null);
+                    })
+                    .on("click", function(){window.open(click_onsen_name())});
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 310)")
+                    .style("font-size", "12px")
+                    .text("泉質：" + d.kounou);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 340)")
+                    .style("font-size", "12px")
+                    .text("【周辺の泉質詳細】");
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 370)")
+                    .style("font-size", "12px")
+                    .text("pH：" + d.pH);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 400)")
+                    .style("font-size", "12px")
+                    .text("Rn(マッヘ)：" + d["Rn(マッヘ)"]);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 430)")
+                    .style("font-size", "12px")
+                    .text("KMn04消費：" + d["KMnO4消費"]);
+                svg_d.append("text")
+                    .attr("class", "detail")
+                    .attr("text-anchor", "end")
+                    .attr("transform", "translate(700, 460)")
+                    .style("font-size", "12px")
+                    .text("調査日：" + d["調査日"]);
+                var bar_dataset = [];
+                const keys = Object.keys(d);
+                for (let i = 0; i < keys.length; i++){
+                    if ((i >= 53 && i < 108) && (d[keys[i]] != 0)){
+                        bar_dataset.push({"name" :keys[i], "value" : d[keys[i]]});
                     }
-                })
+                }
 
-            }
-        }
+                function click_onsen_name(){
+                    if (d.link == ""){
+                        return "https://www.google.com/search?q=" + d.name;
+                    } else {
+                        return d.link;
+                    }
+                }
+                var bar_width = 30;
 
-        function zoomed() {
-            projection_m.translate(d3.event.translate).scale(d3.event.scale);
-            console.log(d3.event.translate);
-            group_m.selectAll("path")
-                .attr("d", path_m)
-                .attr("class", "area")
-                .attr("width", width_m/2)
-                .attr("height", height_m)
-                .attr("stroke", "white")
-                .attr("fill","#9ACD32");
-            pin.attr("transform", function(d) {
-                    return "translate(" + projection_m([
-                        d.location.longitude,
-                        d.location.latitude
-                    ]) + ")";
-                })
-        }
+                var x_d = d3.scale.sqrt()
+                                .domain([0.0, 5000.0])
+                                .range([0, width_d*0.8]);
 
-        function resetsize(event, d){
-            projection_m.translate([width_m/2, height_m/2]).scale(1500);
-            group_m.selectAll("path")
-                .attr("d", path_m)
-                .attr("class", "area")
-                .attr("stroke", "white")
-                .attr("fill","#9ACD32");
-            pin.attr("transform", function(d) {
-                    return "translate(" + projection_m([
-                        d.location.longitude,
-                        d.location.latitude
-                    ]) + ")";
-                })
-        }
+                var y_d = d3.scale.ordinal()
+                                .domain(bar_dataset.map(function(dx){return dx["name"]}))
+                                .rangeRoundBands([0, bar_width*bar_dataset.length], .1);
 
+                var xAxis = d3.svg.axis()
+                                .scale(x_d)
+                                .orient("top");
+
+                var yAxis = d3.svg.axis()
+                                .scale(y_d)
+                                .orient("left");
+
+                svg_d.append("g")
+                    .attr("class", "detail")
+                    .attr("transform", "translate(0,0)")
+                    .call(xAxis);
                 
-    })
+                svg_d.append("g")
+                    .attr("class", "detail")
+                    .call(yAxis);
+
+                var bar = svg_d.selectAll("rect")
+                                .data(bar_dataset)
+                                .enter()
+                                .append("rect");
+
+                svg_d.append("g")
+                    .selectAll("rect")
+                    .data(bar_dataset)
+                    .enter()
+                    .append("rect")
+                    .attr("class", "detail")
+                    .attr("x", 0)
+                    .attr("y", function(dx) {return y_d(dx.name);})
+                    .attr("width", function(dx) {return x_d(dx.value);})
+                    .attr("height", y_d.rangeBand())
+                    .attr("fill", "orange");
+
+                svg_d.append("g")
+                    .selectAll("text")
+                    .data(bar_dataset)
+                    .enter()
+                    .append("text") // テキスト要素追加
+                    .attr("class", "detail")
+                    .attr("text-anchor", "middle")
+                    .attr("x", function(dx) {return x_d(dx.value);})
+                    .attr("y", function(dx) { return y_d(dx["name"]); })
+                    .text(function(dx){ return dx["value"];}) // 配列[1]の文字をラベルにセット
+                    .attr("dy", y_d.rangeBand())
+                    .attr("dx", "18px") // x軸座標を調整
+                    .attr("fill", "black") // テキストカラー
+                    .attr("font-size", y_d.rangeBand()/2) // フォントサイズ
+                    .attr('text-anchor', "start");
+
+                console.log(svg_d)
+            }
+
+            function click(d){
+                svg_d.selectAll(".detail")
+                    .remove();
+            }
+
+            function zoomed() {
+                projection_m.translate(d3.event.translate).scale(d3.event.scale);
+                console.log(d3.event.translate);
+                group_m.selectAll("path")
+                    .attr("d", path_m)
+                    .attr("class", "area")
+                    .attr("stroke", "white")
+                    .attr("fill","#9ACD32");
+                pin.attr("transform", function(d) {
+                        return "translate(" + projection_m([
+                            d.longitude,
+                            d.latitude
+                        ]) + ")";
+                    })
+            }
+
+            function reset(event, d){
+                projection_m.translate([width_m/2, height_m/2]).scale(1500);
+                group_m.selectAll("path")
+                    .attr("d", path_m)
+                    .attr("class", "area")
+                    .attr("stroke", "white")
+                    .attr("fill","#9ACD32");
+                pin.attr("transform", function(d) {
+                        return "translate(" + projection_m([
+                            d.longitude,
+                            d.latitude
+                        ]) + ")";
+                    })
+            }
+
+            var selecting = d3.selectAll("select")
+                .on("change", ranking);
+
+            function ranking(event) {
+
+                d3.selectAll(".rankbar").remove();
+
+                var ingr = selecting.node().value;
+                console.log(ingr);
+                if (ingr == "") {
+                    d3.selectAll(".rankbar").remove();
+                    pin.attr("visibility", "visible");
+                }
+                else {
+                onsen_list.sort((a, b) => b[ingr] - a[ingr]);
+                pin.attr("visibility", "hidden");
+                console.log(onsen_list[0].name);
+                var rank_dataset = [];
+                rank_dataset.push({"name" :onsen_list[1].name, "value" : onsen_list[1][ingr]});
+                rank_dataset.push({"name" :onsen_list[0].name, "value" : onsen_list[0][ingr]});
+                rank_dataset.push({"name" :onsen_list[2].name, "value" : onsen_list[2][ingr]});
+                
+                console.log(rank_dataset);
+
+                var rankwidth = 400; // グラフの幅
+                var rankheight = 300; // グラフの高さ
+                var rankpadding = 30; // スケール表示用マージン
+
+                var xScale = d3.scale.ordinal()
+                    .rangeRoundBands([rankpadding, rankwidth-rankpadding], 0.1)
+                    .domain(rank_dataset.map(function(d) { return d.name; }));
+                                
+                var yScale = d3.scale.linear()
+                    .domain([0, onsen_list[0][ingr]])
+                    .range([rankheight - rankpadding, rankpadding]);
+                // 4. 軸の表示
+                var xaxis = svg_r.append("g")
+                    .attr("class", "rankbar")
+                    .attr("transform", "translate(" + 0 + "," + (rankheight - rankpadding) + ")")
+                    .call(d3.svg.axis().orient("bottom").scale(xScale));
+
+                xaxis.select(".domain").style({ 'stroke': 'black', 'fill': 'none', 'stroke-width': '1px'});
+                
+                var yaxis = svg_r.append("g")
+                    .attr("class", "rankbar") 
+                    .attr("transform", "translate(" + rankpadding + "," + 0 + ")")
+                    .call(d3.svg.axis().orient("left").scale(yScale));
+
+                yaxis.select(".domain").style({ 'stroke': 'black', 'fill': 'none', 'stroke-width': '1px'});
+
+                svg_r.append("g")
+                    .attr("class", "rankbar")
+                    .selectAll("rect")
+                    .data(rank_dataset)
+                    .enter()
+                    .append("rect")
+                    .attr("class", "rankbar")
+                    .attr("x", function(d) { return xScale(d.name); })
+                    .attr("y", function(d) { return yScale(d.value); })
+                    .attr("width", 50)
+                    .attr("height", function(d) { return rankheight - rankpadding - yScale(d.value); })
+                    .attr("transform", "translate(25, 0)")
+                    .attr("fill", "orange");
+
+
+                pin.each(function (d) {
+                                // console.log(this);
+                                if (this.id.includes(onsen_list[0].name)) {
+                                    d3.select(this).attr("visibility", "visible");
+                                }
+                                else if (this.id.includes(onsen_list[1].name)) {
+                                    d3.select(this).attr("visibility", "visible");
+                                }
+                                else if (this.id.includes(onsen_list[2].name)) {
+                                    d3.select(this).attr("visibility", "visible");
+                                }
+                            })  
+            }}           
+        })
+    }
+    dashboard("#dashboard", onsen_list);
+})
+
 </script>
 </body></html>
-
-<!-- <script> 
-
-    // var width = 480,
-    //     height = 400,
-    //     radius = Math.min(width, height) / 2;
-    
-    // var x = d3.scale.linear()
-    //     .range([0, 2 * Math.PI]);
-    
-    // var y = d3.scale.sqrt()
-    //     .range([0, radius]);
-    
-    // var color = d3.scale.category20c();
-    
-    // var svg = d3.select("body").append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //   .append("g")
-    //     .attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ")");
-    
-    // var partition = d3.layout.partition()
-    //     .sort(null)
-    //     .value(function(d) { return 1; });
-    
-    // var arc = d3.svg.arc()
-    //     .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-    //     .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-    //     .innerRadius(function(d) { return Math.max(0, y(d.y)); })
-    //     .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-    
-    // // Keep track of the node that is currently being displayed as the root.
-    // var node;
-    
-    // d3.json("./flare.json", function(error, root) {
-    //   node = root;
-    //   var path = svg.datum(root).selectAll("path")
-    //       .data(partition.nodes)
-    //     .enter().append("path")
-    //       .attr("d", arc)
-    //       .style("fill", function(d) { return color((d.children ? d : d.parent).name); })
-    //       .on("click", click)
-    //       .each(stash);
-    
-    //   d3.selectAll("input").on("change", function change() {
-    //     var value = this.value === "count"
-    //         ? function() { return 1; }
-    //         : function(d) { return d.size; };
-    
-    //     path
-    //         .data(partition.value(value).nodes)
-    //       .transition()
-    //         .duration(1000)
-    //         .attrTween("d", arcTweenData);
-    //   });
-    
-    //   function click(d) {
-    //     node = d;
-    //     path.transition()
-    //       .duration(1000)
-    //       .attrTween("d", arcTweenZoom(d));
-    //   }
-    // });
-    
-    // d3.select(self.frameElement).style("height", height + "px");
-    
-    // // Setup for switching data: stash the old values for transition.
-    // function stash(d) {
-    //   d.x0 = d.x;
-    //   d.dx0 = d.dx;
-    // }
-    
-    // // When switching data: interpolate the arcs in data space.
-    // function arcTweenData(a, i) {
-    //   var oi = d3.interpolate({x: a.x0, dx: a.dx0}, a);
-    //   function tween(t) {
-    //     var b = oi(t);
-    //     a.x0 = b.x;
-    //     a.dx0 = b.dx;
-    //     return arc(b);
-    //   }
-    //   if (i == 0) {
-    //    // If we are on the first arc, adjust the x domain to match the root node
-    //    // at the current zoom level. (We only need to do this once.)
-    //     var xd = d3.interpolate(x.domain(), [node.x, node.x + node.dx]);
-    //     return function(t) {
-    //       x.domain(xd(t));
-    //       return tween(t);
-    //     };
-    //   } else {
-    //     return tween;
-    //   }
-    // }
-    
-    // // When zooming: interpolate the scales.
-    // function arcTweenZoom(d) {
-    //   var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-    //       yd = d3.interpolate(y.domain(), [d.y, 1]),
-    //       yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-    //   return function(d, i) {
-    //     return i
-    //         ? function(t) { return arc(d); }
-    //         : function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); return arc(d); };
-    //   };
-    // }
-    
-// </script>
-// </body></html>
-
-// <script> 
-
-
-
-    // インドの地図をプロット
-    // var places_m = [
-    //     {
-    //     name: "1 Gorkha Rifles",
-    //     nam: "https://en.wikipedia.org/wiki/1_Gorkha_Rifles",
-    //     location: {
-    //         latitude: 30.975441,
-    //         longitude: 76.990228
-    //     }
-    //     },
-    //     {
-    //     name: "3 Gorkha Rifles",
-    //     nam: "https://en.wikipedia.org/wiki/3_Gorkha_Rifles",
-    //     location: {
-    //         latitude: 25.317645,
-    //         longitude:82.973914
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "5 Gorkha Rifles",
-    //     nam: "https://en.wikipedia.org/wiki/5_Gorkha_Rifles",
-    //     location: {
-    //         latitude: 25.578773,
-    //         longitude:91.893254
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "11 Gorkha Rifles",
-    //     nam: "https://en.wikipedia.org/wiki/11_Gorkha_Rifles",
-    //     location: {
-    //         latitude: 26.846694,
-    //         longitude: 80.946166
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Gharwal Rifles",
-    //     nam: "https://en.wikipedia.org/wiki/Gharwal_Rifles",
-    //     location: {
-    //         latitude: 29.837746,
-    //         longitude: 78.687107
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Brigade of the Guards",
-    //     nam: "https://en.wikipedia.org/wiki/Brigade_of_the_Guards",
-    //     location: {
-    //         latitude: 21.227531,
-    //         longitude: 79.190083
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Bihar Regiment",
-    //     nam: "https://en.wikipedia.org/wiki/Bihar_Regiment",
-    //     location: {
-    //         latitude: 25.620667,
-    //         longitude: 85.049325
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Parachute Regiment",
-    //     nam: "https://en.wikipedia.org/wiki/Parachute_Regiment",
-    //     location: {
-    //         latitude: 12.971599,
-    //         longitude: 77.594563
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Ramgarh Cantonment",
-    //     nam: "https://en.wikipedia.org/wiki/Ramgarh_Cantonment",
-    //     location: {
-    //         latitude:23.633224,
-    //         longitude: 85.514874
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Madras Regiment",
-    //     nam: "https://en.wikipedia.org/wiki/Madras_Regiment",
-    //     location: {
-    //         latitude: 11.363560,
-    //         longitude: 76.788471
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Grenadiers Regiment",
-    //     nam: "https://en.wikipedia.org/wiki/Grenadiers_Regiment",
-    //     location: {
-    //         latitude: 23.181467,
-    //         longitude: 79.986407
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Maratha Light Infantry",
-    //     nam: "https://en.wikipedia.org/wiki/Maratha_Light_Infantry",
-    //     location: {
-    //         latitude: 15.849695,
-    //         longitude: 74.497674
-    //     }
-    //     },
-    //     {
-    //     name: "Rajputana Rifles",
-    //     nam: "https://en.wikipedia.org/wiki/Rajputana_Rifles",
-    //     location: {
-    //         latitude: 28.596128,
-    //         longitude: 77.158738
-    //     }
-    //     },
-    //     {
-    //     name: "Kumaon Regiment",
-    //     nam: "https://en.wikipedia.org/wiki/Kumaon_Regiment",
-    //     location: {
-    //         latitude: 29.643362,
-    //         longitude: 79.432182
-    //     }
-    //     }
-    //     ,
-    //     {
-    //     name: "Sikh Light Infantry",
-    //     nam: "https://en.wikipedia.org/wiki/Sikh_Light_Infantry",
-    //     location: {
-    //         latitude: 27.367290,
-    //         longitude: 79.622137
-    //     }
-    //     }
-    // ]
-    // var width_m = 960,
-    //     height_m = 600;
-    // var color_m = d3.scale.ordinal()
-    //             .domain([1,2,3,4,5,6,7,8,9])
-    //             .range(colorbrewer.Oranges[9]);
-    
-    // var projection = d3.geo.mercator()
-    //     .scale(800)
-    //     .translate([-500,600]);
-    
-    // 
-
-
-    // var projection_m = d3.geo.mercator().scale(1100).translate([-1000,800]);
-    // var path_m = d3.geo.path()
-    //     .projection(projection_m);
-    
-    // var svg_m = d3.select("#map").append("svg")
-    //     .attr("viewBox", "0 0 900 800")
-    //      .attr("preserveAspectRatio", "xMidYMid meet");
-    // var data_m;
-    // d3.json("jp_city.l.topojson", function(error, swiss) {
-    //     var city = topojson.feature(swiss, swiss.objects.city);
-    //     var projection_m = d3.geo.mercator()
-    //         .center([137, 34])
-    //         .translate([width_m/2, height_m/2])
-    //         .scale(1500);
-    //     var path_m = d3.geo.path().projection(projection_m);
-
-    //     svg_m.selectAll("path")
-    //     .data(city.features)
-    //     .enter()
-    //     .append("path")
-    //     .attr("d", path_m)
-    //     .attr("fill", "rgb(255, 255, 255)")
-    //     .attr("stroke", "#333333")
-    //     .attr("stroke-width", 0.5)
-    //     .attr('data-position', function(d) {
-    //         var p = d3.geo.centroid(d);
-    //         return p[0] + "," + p[1];
-    //     })
-    //               //svg.call(tip);
-             
-    // var group_m=svg_m.selectAll("g")
-    //     .data(cantons_m.features)
-    //     .enter()
-    //     .append("g");
-    //     //.on('mouseover', tip.show)
-    //         //.on('mouseout', tip.hide)
-            
-            
-    // var tip_m = d3.tip()
-    //         .attr('class', 'd3-tip')
-    //         .offset([-5, 0])
-    //         .style("left", "300px")
-    //         .style("top", "400px")
-    //         .html(function(d) {
-    //             return ("<a href="+d.nam+" target='_blank'>"+d.name +"</a>");
-    //         })
-            
-    // svg_m.call(tip_m);
-
-    
-    // svg_m.selectAll(".pin")
-    //             .data(places_m)
-    //             .enter().append("circle", ".pin")
-    //             .attr("r", 5)
-    //             .attr("transform", function(d) {
-    //             return "translate(" + projection_m([
-    //                 d.location.longitude,
-    //                 d.location.latitude
-    //             ]) + ")";
-    //             })
-    //             .on('mouseover', tip_m.show)
-    //             .on('click', tip_m.hide);		
-        
-    // //var projection = d3.geo.mercator().scale(900).translate([-600,700]);
-    // var path_m = d3.geo.path().projection(projection_m);
-
-    // var areas_m = group_m.append("path")
-    //     .attr("d", path_m)
-    //     .attr("class", "area")
-    //     .attr("fill","steelblue");
-                        
-    // });
-    
-     </script> -->
