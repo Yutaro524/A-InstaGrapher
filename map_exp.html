@@ -344,6 +344,9 @@ d3.csv("merged_onsen_info.csv", function(data){
                         .on('mouseover', mouseover)
                         .on('click', click);	
 
+            pin.each(function(dz){
+                console.log(dz)
+            })
 
             var checkboxes = d3.selectAll(".checkpin")
             .on("click", checking);
