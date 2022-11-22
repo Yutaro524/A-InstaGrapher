@@ -10,9 +10,13 @@ body {
   height: 1600px;
 }
 
+.title {
+    font: 30px sans-serif;
+}
+
 .content_m {
     position: absolute;
-	top: 0;
+	top: 50px;
 	left: 0;
     z-index: 0;
 }
@@ -113,8 +117,8 @@ form {
 
 <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <!-- <div id = "map" style = "float : left; min-width:320px;width :50%;height : 30px">  -->
-    <div id="subtitle"></div>
-    <input type="button" value="reset" id="btn1" style="position: absolute; left: 120px; top: 50px; z-index: 1;"/>
+    <div class="title">日本全国の温泉効能マップ</div>
+    <input type="button" value="reset" id="btn1" style="position: absolute; left: 40px; top: 70px; z-index: 1;"/>
 <!-- </div> -->
 
 <div>
@@ -247,6 +251,7 @@ d3.csv("merged_onsen_info.csv", function(data){
                 .attr("d", path_m)
                 .attr("class", "area")
                 .attr("stroke", "white")
+                .attr("stroke-width", 0.3)
                 .attr("fill","#9ACD32");
 
             // group_m.append("path")
