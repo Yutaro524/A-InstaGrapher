@@ -335,13 +335,6 @@ d3.csv("merged_onsen_info.csv", function(data){
                     }
                 }
 
-                function click_onsen_name(){
-                    if (d.link == ""){
-                        return "https://www.google.com/search?q=" + d.name;
-                    } else {
-                        return d.link;
-                    }
-                }
                 var bar_width = 30;
 
                 var x_d = d3.scale.sqrt()
@@ -401,8 +394,14 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("fill", "black") // テキストカラー
                     .attr("font-size", y_d.rangeBand()/2) // フォントサイズ
                     .attr('text-anchor', "start");
-
-                    svg_d.append("text")
+                svg_d.append("rect")
+                    .attr("x", 448)
+                    .attr("y", 180)
+                    .attr("width", 12*21+6)
+                    .attr("height", 210)
+                    .attr("fill", "transparent")
+                    .attr("stroke", "black");
+                svg_d.append("text")
                     .attr("class", "detail")
                     .attr("text-anchor", "end")
                     .attr("transform", "translate(" + (700 - d.name.length * 12) +", 200)")
@@ -461,7 +460,14 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .attr("transform", "translate(700, 380)")
                     .style("font-size", "12px")
                     .text("調査日：" + d["調査日"]);
-                
+
+                function click_onsen_name(){
+                    if (d.link == ""){
+                        return "https://www.google.com/search?q=" + d.name;
+                    } else {
+                        return d.link;
+                    }
+                }
 
                 console.log(svg_d)
             }
