@@ -139,7 +139,7 @@ form {
     <input type="checkbox" class="checkpin" id="塩化" style="position: absolute; left: 850px; top: 100px" autocomplete="off"/>
     <p style="position: absolute; left: 875px; top: 80px; width: 50px"><span class="tooltip">塩化<span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、虚弱児童、慢性婦人病</span></span></p>
     <input type="checkbox" class="checkpin" id="炭酸" style="position: absolute; left: 850px; top: 125px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 105px; width: 50px"><span class="tooltip">炭酸<span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、美肌効果</span></span></p>
+    <p style="position: absolute; left: 875px; top: 105px; width: 80px"><span class="tooltip">炭酸水素<span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、美肌効果</span></span></p>
     <input type="checkbox" class="checkpin" id="硫黄" style="position: absolute; left: 850px; top: 150px" autocomplete="off"/>
     <p style="position: absolute; left: 875px; top: 130px; width: 50px"><span class="tooltip">硫黄<span class="balloon_right">効能：一般適応症、慢性皮膚病、慢性婦人病、切り傷、糖尿病（硫化水素型）、高血圧症、動脈硬化症、美肌効果</span></span></p>
     <input type="checkbox" class="checkpin" id="放射能" style="position: absolute; left: 850px; top: 175px" autocomplete="off"/>
@@ -167,10 +167,13 @@ form {
 		<option value="Ca2+">Ca&sup2&#x207a</option>
 		<option value="Cl−">Cl&#x207b</option>
         <option value="SO42−">SO&#x2084&sup2&#x207b</option>
+        <option value="HCO3−">HCO&#x2083&#x207b</option>
 		<option value="CO32−">CO&#x2083&sup2&#x207b</option>
 	</select>
 </div>
 </form>
+
+<pre class="rank" style="position: absolute; left: 1120px; top: 350px" >二位         一位          三位</pre>
 <script>
 
 var onsen_list = [];
@@ -250,7 +253,7 @@ d3.csv("merged_onsen_info.csv", function(data){
             var zoom = d3.behavior.zoom()
             .translate(projection_m.translate())
             .scale(projection_m.scale())
-            .scaleExtent([height_m, 8 * height_m])
+            .scaleExtent([height_m, 9 * height_m])
             .on("zoom", zoomed);
 
 
@@ -481,6 +484,9 @@ d3.csv("merged_onsen_info.csv", function(data){
                     .style("font-size", "12px")
                     .text("調査日：" + d["調査日"]);
 
+                svg_d.selectAll("g")
+                    .append("rect")
+
                 function click_onsen_name(){
                     if (d.link == ""){
                         return "https://www.google.com/search?q=" + d.name;
@@ -514,6 +520,14 @@ d3.csv("merged_onsen_info.csv", function(data){
             }
 
             function reset(event, d){
+                let targets = document.querySelectorAll(`input[type='checkbox']`);
+                for (const i of targets) {
+                        i.checked = false;
+                }
+                document.ionrank.reset();
+                d3.selectAll(".rankbar").remove();
+                pin.attr("visibility", "visible");
+
                 projection_m.translate([width_m/2, height_m/2]).scale(1500);
                 group_m.selectAll("path")
                     .attr("d", path_m)
