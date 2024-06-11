@@ -1,639 +1,103 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-
-body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  margin: 40px;
-  padding-bottom: 40px;
-  position: relative;
-  width: 1600px;
-  height: auto;
-}
-
-.title {
-    font: 30px sans-serif;
-    position: absolute;
-	top: 0px;
-	left: 50px;
-}
-
-.ranking {
-    font: 25px sans-serif;
-    position: absolute;
-	top: 30px;
-	left: 1150px;
-}
-
-.content_m {
-    position: absolute;
-	top: 50px;
-	left: 0;
-    z-index: 0;
-}
-
-.content_d {
-    position: absolute;
-	top: 400px;
-	left: 800px;
-}
-
-.content_r {
-    position: absolute;
-	top: 30px;
-	left: 1000px;
-    z-index: 2;
-}
-
-form {
-  position: absolute;
-  left: 1350px;
-  top: 50px;
-  z-index: 3;
-}
-
-.detail text {
-  font: 10px sans-serif;
-}
-
-.detail path,
-.detail line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-.detail path {
-  display: none;
-}
-
-.background {
-  fill: none;
-  pointer-events: all;
-}
-
-
-.tooltip { /* 補足説明するテキストのスタイル */
-  position: relative;
-  cursor: pointer;
-}
- 
-.balloon_right { /* ツールチップのスタイル */
-  width: 150px; /* 横幅 */
-  position: absolute;
-  top: 50%;
-  left: 80%; /* X軸の位置 */
-  transform: translateY(-50%);
-  margin-left: 16px; /* テキストとの距離 */
-  padding: 8px;
-  border-radius: 10px; /* 角の丸み */
-  background-color: #666;
-  font-size: 0.7em;
-  color: #fff;
-  text-align: center;
-  visibility: hidden; /* ツールチップを非表示に */
-  opacity: 0; /*不透明度を0％に */
-  z-index: 1;
-  transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
-}
- 
-.balloon_right::before { /* 吹き出しの「しっぽ」のスタイル */
-  content: "";
-  width: 0;
-  height: 0;
-  border: 10px solid transparent;
-  border-right: 12px solid #666; /* 最後の値は「ツールチップの背景色」と合わせる */
-  position: absolute;
-  top: 50%;
-  right: 99%;
-  transform: translateY(-50%);
-}
- 
-.tooltip:hover .balloon_right { /* マウスオーバー時のスタイル */
-  left: 100%; /* X軸の位置 */
-  visibility: visible; /* ツールチップを表示 */
-  opacity: 1; /* 不透明度を100％に */
-}
-
-			
-</style>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>日本全国の温泉効能マップ</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="./topojson.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="./script.js"></script>
+</head>
 <body>
-<!-- <form>
-  <label><input type="radio" name="mode" value="size"> Size</label>
-  <label><input type="radio" name="mode" value="count" checked> Count</label>
-</form> -->
-<script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
-<script src="https://d3js.org/d3.v3.min.js"></script>
-<script src="./topojson.js"></script>
-
-<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-<!-- <div id = "map" style = "float : left; min-width:320px;width :50%;height : 30px">  -->
     <div class="title">日本全国の温泉効能マップ</div>
-    <div class="ranking">成分濃度TOP3</div>
-    <input type="button" value="reset" id="btn1" style="position: absolute; left: 40px; top: 70px; z-index: 1;"/>
-<!-- </div> -->
+    <div>
+        <input type="button" value="リセット" id="btn1" />
+    </div>
+    <div class="container">
+        <div class="left"></div>
+        <div class="right">
+            <div class="up-right">
+                <div class="checkbox-item">
+                    <input type="checkbox" class="checkpin" id="単純" autocomplete="off" />
+                    <label for="単純" class="checkbox-label">
+                        <span class="tooltip">単純
+                            <span class="balloon_right">効能：一般適応症(神経痛、筋肉痛、関節痛、五十肩、運動麻痺、関節のこわばり、うちみ、くじき、慢性消化器病、痔疾、冷え性、病後回復期、健康増進)</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="塩化" autocomplete="off" />
+                    <label for="塩化" class="checkbox-label">
+                        <span class="tooltip">塩化
+                            <span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、虚弱児童、慢性婦人病</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="炭酸" autocomplete="off" />
+                    <label for="炭酸" class="checkbox-label">
+                        <span class="tooltip">炭酸水素
+                            <span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、美肌効果</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="硫黄" autocomplete="off" />
+                    <label for="硫黄" class="checkbox-label">
+                        <span class="tooltip">硫黄
+                            <span class="balloon_right">効能：一般適応症、慢性皮膚病、慢性婦人病、切り傷、糖尿病（硫化水素型）、高血圧症、動脈硬化症、美肌効果</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="放射能" autocomplete="off" />
+                    <label for="放射能" class="checkbox-label">
+                        <span class="tooltip">放射能
+                            <span class="balloon_right">効能：一般適応症、痛風、動脈硬化症、高血圧症、慢性胆のう炎、胆石症、慢性皮膚病、慢性婦人病</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="硫酸" autocomplete="off" />
+                    <label for="硫酸" class="checkbox-label">
+                        <span class="tooltip">硫酸
+                            <span class="balloon_right">効能：一般適応症、動脈硬化症、切り傷、火傷、慢性皮膚病、美肌効果</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="酸性" autocomplete="off" />
+                    <label for="酸性" class="checkbox-label">
+                        <span class="tooltip">酸性
+                            <span class="balloon_right">効能：一般適応症、水虫、アトピー性皮膚炎、尋常性汗乾癬、関節炎、胃腸病</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="含鉄" autocomplete="off" />
+                    <label for="含鉄" class="checkbox-label">
+                        <span class="tooltip">含鉄
+                            <span class="balloon_right">効能：一般適応症、リウマチ、創傷、婦人病、鉄欠乏性貧血症（飲用）</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="二酸" autocomplete="off" />
+                    <label for="二酸" class="checkbox-label">
+                        <span class="tooltip">二酸化炭素
+                            <span class="balloon_right">効能：一般適応症、高血圧症、動脈硬化症、切り傷、火傷、胃腸病、婦人病</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="ヨウ素" autocomplete="off" />
+                    <label for="ヨウ素" class="checkbox-label">
+                        <span class="tooltip">ヨウ素
+                            <span class="balloon_right">効能：一般適応症、高コレステロール血症（飲用）</span>
+                        </span>
+                    </label>
+                    <br>
+                    <input type="checkbox" class="checkpin" id="なし" autocomplete="off" />
+                    <label for="なし" class="checkbox-label">なし</label>
+                </div>
+            </div>
+            <div class="down-right"></div>
+        </div>   
+    </div>
 
-<div>
-    <input type="checkbox" class="checkpin" id="単純" style="position: absolute; left: 850px; top: 75px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 55px; width: 50px"><span class="tooltip">単純<span class="balloon_right">効能：一般適応症(神経痛、筋肉痛、関節痛、五十肩、運動麻痺、関節のこわばり、うちみ、くじき、慢性消化器病、痔疾、冷え性、病後回復期、健康増進)</span></span></p>
-    <input type="checkbox" class="checkpin" id="塩化" style="position: absolute; left: 850px; top: 100px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 80px; width: 50px"><span class="tooltip">塩化<span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、虚弱児童、慢性婦人病</span></span></p>
-    <input type="checkbox" class="checkpin" id="炭酸" style="position: absolute; left: 850px; top: 125px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 105px; width: 80px"><span class="tooltip">炭酸水素<span class="balloon_right">効能：一般適応症、切り傷、火傷、慢性皮膚病、美肌効果</span></span></p>
-    <input type="checkbox" class="checkpin" id="硫黄" style="position: absolute; left: 850px; top: 150px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 130px; width: 50px"><span class="tooltip">硫黄<span class="balloon_right">効能：一般適応症、慢性皮膚病、慢性婦人病、切り傷、糖尿病（硫化水素型）、高血圧症、動脈硬化症、美肌効果</span></span></p>
-    <input type="checkbox" class="checkpin" id="放射能" style="position: absolute; left: 850px; top: 175px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 155px; width: 50px"><span class="tooltip">放射能<span class="balloon_right">効能：一般適応症、痛風、動脈硬化症、高血圧症、慢性胆のう炎、胆石症、慢性皮膚病、慢性婦人病</span></span></p>
-    <input type="checkbox" class="checkpin" id="硫酸" style="position: absolute; left: 850px; top: 200px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 180px; width: 50px"><span class="tooltip">硫酸<span class="balloon_right">効能：一般適応症、動脈硬化症、切り傷、火傷、慢性皮膚病、美肌効果</span></span></p>
-    <input type="checkbox" class="checkpin" id="酸性" style="position: absolute; left: 850px; top: 225px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 205px; width: 50px"><span class="tooltip">酸性<span class="balloon_right">効能：一般適応症、水虫、アトピー性皮膚炎、尋常性汗乾癬、関節炎、胃腸病</span></span></p>
-    <input type="checkbox" class="checkpin" id="含鉄" style="position: absolute; left: 850px; top: 250px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 230px; width: 50px"><span class="tooltip">含鉄<span class="balloon_right">効能：一般適応症、リウマチ、創傷、婦人病、鉄欠乏性貧血症（飲用）</span></span></p>
-    <input type="checkbox" class="checkpin" id="二酸" style="position: absolute; left: 850px; top: 275px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 255px; width: 80px"><span class="tooltip">二酸化炭素<span class="balloon_right">効能：一般適応症、高血圧症、動脈硬化症、切り傷、火傷、胃腸病、婦人病</span></span></p>
-    <input type="checkbox" class="checkpin" id="ヨウ素" style="position: absolute; left: 850px; top: 300px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 280px; width: 50px"><span class="tooltip">ヨウ素<span class="balloon_right">効能：一般適応症、高コレステロール血症（飲用）</span></span></p>
-    <input type="checkbox" class="checkpin" id="なし" style="position: absolute; left: 850px; top: 325px" autocomplete="off"/>
-    <p style="position: absolute; left: 875px; top: 305px; width: 50px">なし </p>
-</div>
-
-<form name="ionrank">
-<div class="select">
-    <select name="prefecture" autocomplete="off">
-		<option value="">選択してください</option>
-		<option value="Na+">Na&#x207a</option>
-        <option value="K+">K&#x207a</option>
-		<option value="Ca2+">Ca&sup2&#x207a</option>
-		<option value="Cl−">Cl&#x207b</option>
-        <option value="SO42−">SO&#x2084&sup2&#x207b</option>
-        <option value="HCO3−">HCO&#x2083&#x207b</option>
-		<option value="CO32−">CO&#x2083&sup2&#x207b</option>
-	</select>
-</div>
-</form>
-
-<pre class="rank" style="position: absolute; left: 1120px; top: 350px" >二位         一位          三位</pre>
-<script>
-
-var onsen_list = [];
-d3.csv("merged_onsen_info.csv", function(data){
-    data.forEach(function(d){
-        d["kounou"] = kounou(d)
-        onsen_list.push(d);
-    })
-    console.log(onsen_list);
-
-    function kounou(d){
-        kounou_list = [];
-        if (d.tanjun=="True") kounou_list.push("単純");
-        if (d.enka=="True") kounou_list.push("塩化");
-        if (d.tansan=="True") kounou_list.push("炭酸");
-        if (d.iou=="True") kounou_list.push("硫黄");
-        if (d.housya=="True") kounou_list.push("放射能");
-        if (d.ryusan=="True") kounou_list.push("硫酸");
-        if (d.sansei=="True") kounou_list.push("酸性");
-        if (d.gantetsu=="True") kounou_list.push("含鉄");
-        if (d.nisan=="True") kounou_list.push("二酸");
-        if (d.youso=="True") kounou_list.push("ヨウ素");
-        if (kounou_list.length == 0) kounou_list.push("なし");
-        return kounou_list;
-    }
     
-
-    function dashboard(id, fData){
-        var width_m = 800;
-        var height_m = 800;
-        var color_m = d3.scale.category20();
-        var projection_m = d3.geo.mercator()
-                            .center([137, 36])
-                            .translate([width_m/2, height_m/2])
-                            .scale(1500);
-
-        var path_m = d3.geo.path().projection(projection_m);
-        
-        var svg_m = d3.select("body").append("svg")
-                    .attr("class", "content_m")
-                    .attr("min-x", 0)
-                    .attr("min-y", 0)
-                    .attr("width", width_m)
-                    .attr("height", height_m);
-        
-        var margin_d = { top: 35, right: 20, bottom: 0, left: 60 };
-        var margin_r = { top: 35, right: 20, bottom: 0, left: 40 };
-        var width_d = 900 - margin_d.left - margin_d.right;
-        var height_d = 500 - margin_d.top - margin_d.bottom;
-
-        var svg_d = d3.select("body").append("svg")
-                    .attr("class", "content_d")
-                    .attr("min-x", 0)
-                    .attr("min-y", 800)
-                    .attr("width", 900)
-                    .attr("height", 600)
-                    .append("g")
-                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")");
-
-        svg_d.append("rect")
-            .attr("class", "background")
-            .attr("stroke", "black")
-            .attr("width", width_d)
-            .attr("height", height_d);
-
-        var svg_r = d3.select("body").append("svg")
-            .attr("class", "content_r")
-            .attr("min-x", 800)
-            .attr("min-y", 0)
-            .attr("width", 400)
-            .attr("height", 400)
-            .append("g")
-            .attr("transform", "translate(" + margin_r.left + "," + margin_r.top + ")");
-                    
-        d3.json("./jp_city.l.topojson", function(v){
-
-            var zoom = d3.behavior.zoom()
-            .translate(projection_m.translate())
-            .scale(projection_m.scale())
-            .scaleExtent([height_m, 9 * height_m])
-            .on("zoom", zoomed);
-
-
-            var target = d3.selectAll("#btn1")
-                .on("click", reset);
-
-            var group_m = svg_m
-                .append("g")
-                .call(zoom);
-
-            var japan = topojson.feature(v, v.objects.city);
-
-
-            group_m.selectAll("path").data(japan.features)
-                .enter()
-                .append("path")
-                .attr("d", path_m)
-                .attr("class", "area")
-                .attr("stroke", "white")
-                .attr("stroke-width", 0.3)
-                .attr("fill","#9ACD32");
-
-            // group_m.append("path")
-            //      .datum(topojson.mesh(data, data.objects.city, function(a, b) { return a !== b; }))
-            //      .attr("d", path_m)
-            //      .attr("class", "area")
-            //      .attr("stroke", "black")
-            //      .attr("fill","#9ACD32");
-
-            group_m.append("rect")
-                .attr("class", "background")
-                .attr("stroke", "black")
-                .attr("fill", "aqua")
-                .attr("width", width_m)
-                .attr("height", height_m);
-
-            var tip_m = d3.tip()
-                    .attr('class', 'd3-tip')
-                    .offset([-3, 0])
-                    // .style("position", "absolute")
-                    .style("left", '300px')
-                    .style("top", "40px")
-                    .html(function(d) {
-                    return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
-                })
-                    .style("width", "200px")
-                    .style("height", "50px");
-            
-            svg_m.call(tip_m);
-
-            
-            
-            var pin = svg_m.selectAll(".pin")
-                        .data(onsen_list)
-                        .enter().append("circle", ".pin")
-                        // .attr("class", function(d) {return d.name})
-                        .attr("id", function(d) {return [d.kounou, d.name]})
-                        .attr("r", 3)
-                        .attr("stroke", "gray")
-                        .attr("fill", function(d){ return color_m(d.kounou[0])})
-                        .attr("visibility", "visible")
-                        .attr("transform", function(d) {
-                        return "translate(" + projection_m([
-                            d.longitude,
-                            d.latitude
-                        ]) + ")";
-                        })
-                        .on('mouseover', mouseover)
-                        .on('click', click);	
-
-            console.log(pin);
-
-            var checkboxes = d3.selectAll(".checkpin")
-            checkboxes.on("click", checking);
-    
-            function checking(event) {
-                    document.ionrank.reset();
-                    d3.selectAll(".rankbar").remove();
-                    pin.attr("visibility", "visible");
-                    
-                    checkboxes[0].forEach(function (value) {
-                        if(value.checked == true) {
-                        pin.each(function (d) {
-                            if (this.id.includes(value.id) != 1) {
-                                d3.select(this).attr("visibility", "hidden");
-                            }
-                        })
-                }
-                })
-
-                   
-            }
-
-            function mouseover(d){
-                pin.attr("r", 3).attr("stroke", "gray");
-                d3.select(this).attr("r", 7).attr("stroke", "black");
-                svg_d.selectAll(".detail")
-                    .remove();
-                var bar_dataset = [];
-                const keys = Object.keys(d);
-                const values = Object.values(d);
-                for (let i = 0; i < keys.length; i++){
-                    if ((i >= 53 && i < 108) && (d[keys[i]] != 0)){
-                        bar_dataset.push({"name" :keys[i], "value" : d[keys[i]]});
-                    }
-                }
-
-                var bar_width = 30;
-                const arymax = function(a, b){ return Math.max(a, b)};
-
-                var x_d = d3.scale.sqrt()
-                                .domain([0.0, values.slice(53, 107).reduce(arymax)])
-                                .range([0, 550]);
-
-                var y_d = d3.scale.ordinal()
-                                .domain(bar_dataset.map(function(dx){return dx["name"]}))
-                                .rangeRoundBands([0, bar_width*bar_dataset.length], .1);
-
-                var xAxis = d3.svg.axis()
-                                .scale(x_d)
-                                .orient("top");
-
-                var yAxis = d3.svg.axis()
-                                .scale(y_d)
-                                .orient("left");
-
-                svg_d.append("g")
-                    .attr("class", "detail")
-                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
-                    .call(xAxis);
-                
-                svg_d.append("g")
-                    .attr("class", "detail")
-                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
-                    .call(yAxis);
-
-                var bar = svg_d.selectAll("rect")
-                                .data(bar_dataset)
-                                .enter()
-                                .append("rect");
-
-                svg_d.append("g")
-                    .selectAll("rect")
-                    .data(bar_dataset)
-                    .enter()
-                    .append("rect")
-                    .attr("class", "detail")
-                    .attr("x", 0)
-                    .attr("y", function(dx) {return y_d(dx.name);})
-                    .attr("width", function(dx) {return x_d(dx.value);})
-                    .attr("height", y_d.rangeBand())
-                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
-                    .attr("fill", "orange");
-
-                svg_d.append("g")
-                    .selectAll("text")
-                    .data(bar_dataset)
-                    .enter()
-                    .append("text") // テキスト要素追加
-                    .attr("class", "detail")
-                    .attr("text-anchor", "middle")
-                    .attr("x", 0)
-                    .attr("y", function(dx) { return y_d(dx["name"]); })
-                    .text(function(dx){ return dx["value"];}) // 配列[1]の文字をラベルにセット
-                    .attr("dy", y_d.rangeBand()*2/3)
-                    .attr("dx", "8px") // x軸座標を調整
-                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")")
-                    .attr("fill", "black") // テキストカラー
-                    .attr("font-size", y_d.rangeBand()/2) // フォントサイズ
-                    .attr('text-anchor', "start");
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(" + (800 - d.name.length * 12) +", 200)")
-                    .style("font-size", "12px")
-                    .text("温泉名：");
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 200)")
-                    .style("font-size", "12px")
-                    .text(d.name)
-                    .on("mouseover", function(){
-                        d3.select(this)
-                            .attr("fill", "blue")
-                            .attr("text-decoration", "underline");
-                    })
-                    .on("mouseout", function(){
-                        d3.select(this)
-                            .attr("fill", "black")
-                            .attr("text-decoration", null);
-                    })
-                    .on("click", function(){window.open(click_onsen_name())});
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 230)")
-                    .style("font-size", "12px")
-                    .text("泉質：" + d.kounou);
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 260)")
-                    .style("font-size", "12px")
-                    .text("【周辺の泉質詳細】");
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 290)")
-                    .style("font-size", "12px")
-                    .text("pH：" + d.pH);
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 320)")
-                    .style("font-size", "12px")
-                    .text("Rn(マッヘ)：" + d["Rn(マッヘ)"]);
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 350)")
-                    .style("font-size", "12px")
-                    .text("KMn04消費：" + d["KMnO4消費"]);
-                svg_d.append("text")
-                    .attr("class", "detail")
-                    .attr("text-anchor", "end")
-                    .attr("transform", "translate(810, 380)")
-                    .style("font-size", "12px")
-                    .text("調査日：" + d["調査日"]);
-
-                svg_d.selectAll("g")
-                    .append("rect")
-
-                function click_onsen_name(){
-                    if (d.link == ""){
-                        return "https://www.google.com/search?q=" + d.name;
-                    } else {
-                        return d.link;
-                    }
-                }
-
-                console.log(svg_d)
-            }
-
-            function click(d){
-                svg_d.selectAll(".detail")
-                    .remove();
-            }
-
-            function zoomed() {
-                projection_m.translate(d3.event.translate).scale(d3.event.scale);
-                console.log(d3.event.translate);
-                group_m.selectAll("path")
-                    .attr("d", path_m)
-                    .attr("class", "area")
-                    .attr("stroke", "white")
-                    .attr("fill","#9ACD32");
-                pin.attr("transform", function(d) {
-                        return "translate(" + projection_m([
-                            d.longitude,
-                            d.latitude
-                        ]) + ")";
-                    })
-            }
-
-            function reset(event, d){
-                let targets = document.querySelectorAll(`input[type='checkbox']`);
-                for (const i of targets) {
-                        i.checked = false;
-                }
-                document.ionrank.reset();
-                d3.selectAll(".rankbar").remove();
-                pin.attr("visibility", "visible");
-
-                projection_m.translate([width_m/2, height_m/2]).scale(1500);
-                group_m.selectAll("path")
-                    .attr("d", path_m)
-                    .attr("class", "area")
-                    .attr("stroke", "white")
-                    .attr("fill","#9ACD32");
-                pin.attr("transform", function(d) {
-                        return "translate(" + projection_m([
-                            d.longitude,
-                            d.latitude
-                        ]) + ")";
-                    })
-            }
-
-            var selecting = d3.selectAll("select")
-                .on("change", ranking);
-
-            function ranking(event) {
-
-                d3.selectAll(".rankbar").remove();
-
-                let targets = document.querySelectorAll(`input[type='checkbox']`);
-
-                for (const i of targets) {
-                        i.checked = false;
-                }
-
-                var ingr = selecting.node().value;
-                console.log(ingr);
-                if (ingr == "") {
-                    d3.selectAll(".rankbar").remove();
-                    pin.attr("visibility", "visible");
-                }
-                else {
-                onsen_list.sort((a, b) => b[ingr] - a[ingr]);
-                pin.attr("visibility", "hidden");
-                console.log(onsen_list[0].name);
-                var rank_dataset = [];
-                rank_dataset.push({"name" :onsen_list[1].name, "value" : onsen_list[1][ingr]});
-                rank_dataset.push({"name" :onsen_list[0].name, "value" : onsen_list[0][ingr]});
-                rank_dataset.push({"name" :onsen_list[2].name, "value" : onsen_list[2][ingr]});
-                
-                console.log(rank_dataset);
-
-                var rankwidth = 400; // グラフの幅
-                var rankheight = 300; // グラフの高さ
-                var rankpadding = 30; // スケール表示用マージン
-
-                var xScale = d3.scale.ordinal()
-                    .rangeRoundBands([rankpadding, rankwidth-rankpadding], 0.1)
-                    .domain(rank_dataset.map(function(d) { return d.name; }));
-                                
-                var yScale = d3.scale.linear()
-                    .domain([0, onsen_list[0][ingr]])
-                    .range([rankheight - rankpadding, rankpadding]);
-                // 4. 軸の表示
-                var xaxis = svg_r.append("g")
-                    .attr("class", "rankbar")
-                    .attr("transform", "translate(" + 0 + "," + (rankheight - rankpadding) + ")")
-                    .call(d3.svg.axis().orient("bottom").scale(xScale));
-
-                xaxis.select(".domain").style({ 'stroke': 'black', 'fill': 'none', 'stroke-width': '1px'});
-                
-                var yaxis = svg_r.append("g")
-                    .attr("class", "rankbar") 
-                    .attr("transform", "translate(" + rankpadding + "," + 0 + ")")
-                    .call(d3.svg.axis().orient("left").scale(yScale));
-
-                yaxis.select(".domain").style({ 'stroke': 'black', 'fill': 'none', 'stroke-width': '1px'});
-
-                svg_r.append("g")
-                    .attr("class", "rankbar")
-                    .selectAll("rect")
-                    .data(rank_dataset)
-                    .enter()
-                    .append("rect")
-                    .attr("class", "rankbar")
-                    .attr("x", function(d) { return xScale(d.name); })
-                    .attr("y", rankheight - rankpadding)
-                    .attr("width", 50)
-                    .attr("height", 0)
-                    .transition()
-                    .duration(800)
-                    .attr("y", function(d) { return yScale(d.value); })
-                    .attr("height", function(d) { return rankheight - rankpadding - yScale(d.value); })
-                    .attr("transform", "translate(25, 0)")
-                    .attr("fill", "teal");
-
-
-                pin.each(function (d) {
-                                // console.log(this);
-                                if (this.id.includes(onsen_list[0].name)) {
-                                    d3.select(this).attr("visibility", "visible");
-                                }
-                                else if (this.id.includes(onsen_list[1].name)) {
-                                    d3.select(this).attr("visibility", "visible");
-                                }
-                                else if (this.id.includes(onsen_list[2].name)) {
-                                    d3.select(this).attr("visibility", "visible");
-                                }
-                            })  
-            }}           
-        })
-    }
-    dashboard("#dashboard", onsen_list);
-})
-
-</script>
-</body></html>
+</body>
+</html>

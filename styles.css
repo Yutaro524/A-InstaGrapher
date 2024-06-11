@@ -1,0 +1,102 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.title {
+    font: 30px sans-serif;
+    top: 0px;
+    left: 50px;
+    margin-bottom: 10px;
+}
+
+.ranking {
+    font: 25px sans-serif;
+    position: absolute;
+    top: 30px;
+    left: 1150px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail text {
+    font: 10px sans-serif;
+}
+
+.detail line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.detail path {
+    display: none;
+}
+
+.background {
+    fill: none;
+    pointer-events: all;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+}
+
+.left {
+    flex: 1; /* 左側を横幅いっぱいに拡張 */
+}
+
+/* 右側の要素 */
+.right {
+    flex: 1; /* 右側を横幅いっぱいに拡張 */
+}
+
+.up-right {
+    display: flex;
+    margin-bottom:30px;
+}
+
+.checkbox-item {
+    text-align: left;
+    margin-left: 30px;
+    margin-right: 30px;
+    font-size: 12px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.checkbox-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.tooltip {
+    display: inline-block;
+    position: relative;
+}
+
+.balloon_right {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: 10px;
+    width: 300px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1;
+}
+
+.tooltip:hover .balloon_right {
+    display: block;
+}
