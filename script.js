@@ -1,71 +1,76 @@
 var onsen_list = [];
-d3.csv("merged_onsen_info.csv", function(data){
-    data.forEach(function(d){
-        d["kounou"] = kounou(d)
+
+d3.csv("merged_onsen_info.csv", function(data) {
+    data.forEach(function(d) {
+        d["kounou"] = kounou(d);
         onsen_list.push(d);
-    })
+    });
     console.log(onsen_list);
 
-    function kounou(d){
-        kounou_list = [];
-        if (d.tanjun=="True") kounou_list.push("単純");
-        if (d.enka=="True") kounou_list.push("塩化");
-        if (d.tansan=="True") kounou_list.push("炭酸");
-        if (d.iou=="True") kounou_list.push("硫黄");
-        if (d.housya=="True") kounou_list.push("放射能");
-        if (d.ryusan=="True") kounou_list.push("硫酸");
-        if (d.sansei=="True") kounou_list.push("酸性");
-        if (d.gantetsu=="True") kounou_list.push("含鉄");
-        if (d.nisan=="True") kounou_list.push("二酸");
-        if (d.youso=="True") kounou_list.push("ヨウ素");
+    function kounou(d) {
+        var kounou_list = [];
+        if (d.tanjun == "True") kounou_list.push("単純");
+        if (d.enka == "True") kounou_list.push("塩化");
+        if (d.tansan == "True") kounou_list.push("炭酸");
+        if (d.iou == "True") kounou_list.push("硫黄");
+        if (d.housya == "True") kounou_list.push("放射能");
+        if (d.ryusan == "True") kounou_list.push("硫酸");
+        if (d.sansei == "True") kounou_list.push("酸性");
+        if (d.gantetsu == "True") kounou_list.push("含鉄");
+        if (d.nisan == "True") kounou_list.push("二酸");
+        if (d.youso == "True") kounou_list.push("ヨウ素");
         if (kounou_list.length == 0) kounou_list.push("なし");
         return kounou_list;
     }
-    
 
-    function dashboard(id, fData){
+    function dashboard(id, fData) {
         var width_m = 600;
         var height_m = 600;
         var color_m = d3.scale.category20();
         var projection_m = d3.geo.mercator()
-                            .center([137, 38])
-                            .translate([width_m/2, height_m/2])
-                            .scale(1200);
+            .center([137, 38])
+            .translate([width_m / 2, height_m / 2])
+            .scale(1200);
 
         var path_m = d3.geo.path().projection(projection_m);
-        
+
         var svg_m = d3.select(".left").append("svg")
-                    .attr("class", "content_m")
-                    .attr("min-x", 0)
-                    .attr("min-y", 0)
-                    .attr("width", width_m)
-                    .attr("height", height_m);
+            .attr("class", "content_m")
+            .attr("min-x", 0)
+            .attr("min-y", 0)
+            .attr("width", width_m)
+            .attr("height", height_m);
 
         var svg_t = d3.select(".up-right").append("svg")
-                    .attr("class", "content_t")
-                    .attr("min-x", 0)
-                    .attr("min-y", 0)
-                    .attr("width", 300)
-                    .attr("height", 200);
+            .attr("class", "content_t")
+            .attr("min-x", 0)
+            .attr("min-y", 0)
+            .attr("width", 300)
+            .attr("height", 200);
 
         svg_t.append("rect")
-                    .attr("class", "background")
-                    .attr("stroke", "black")
-                    .attr("width", 300)
-                    .attr("height", 200);
-        
-        var margin_d = { top: 10, right: 10, bottom: 10, left: 20 };
+            .attr("class", "background")
+            .attr("stroke", "black")
+            .attr("width", 300)
+            .attr("height", 200);
+
+        var margin_d = {
+            top: 10,
+            right: 10,
+            bottom: 10,
+            left: 20
+        };
         var width_d = 500 - margin_d.left - margin_d.right;
         var height_d = 350 - margin_d.top - margin_d.bottom;
 
         var svg_d = d3.select(".down-right").append("svg")
-                    .attr("class", "content_d")
-                    .attr("min-x", 0)
-                    .attr("min-y", 800)
-                    .attr("width", 500)
-                    .attr("height", 350)
-                    .append("g")
-                    .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")");
+            .attr("class", "content_d")
+            .attr("min-x", 0)
+            .attr("min-y", 800)
+            .attr("width", 500)
+            .attr("height", 350)
+            .append("g")
+            .attr("transform", "translate(" + margin_d.left + "," + margin_d.top + ")");
 
         svg_d.append("rect")
             .attr("class", "background")
@@ -108,19 +113,18 @@ d3.csv("merged_onsen_info.csv", function(data){
                 .attr("width", width_m)
                 .attr("height", height_m);
 
-            var tip_m = d3.tip()
-                    .attr('class', 'd3-tip')
-                    .offset([-3, 0])
-                    // .style("position", "absolute")
-                    .style("left", '300px')
-                    .style("top", "40px")
-                    .html(function(d) {
-                    return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
-                })
-                    .style("width", "200px")
-                    .style("height", "50px");
+            // var tip_m = d3.tip()
+            //         .attr('class', 'd3-tip')
+            //         .offset([-3, 0])
+            //         .style("left", '300px')
+            //         .style("top", "40px")
+            //         .html(function(d) {
+            //         return ("<a href="+d.link+" target='_blank'>"+d.name +"</a><br>成分: "+d.kounou);
+            //     })
+            //         .style("width", "200px")
+            //         .style("height", "50px");
             
-            svg_m.call(tip_m);
+            // svg_m.call(tip_m);
 
             
             
